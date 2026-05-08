@@ -1,14 +1,6 @@
 // TODO: Implementar servicio de pagos
 // Este módulo manejará la lógica de negocio relacionada con pagos
-
-export interface Payment {
-  id: string;
-  orderId: string;
-  amount: number;
-  method: 'CARD';
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  createdAt: string;
-}
+import { Payment } from './payments.types';
 
 import * as paymentRepository from './payment.repository';
 
@@ -42,8 +34,15 @@ export async function getPaymentByOrderId(
   return paymentRepository.findPaymentByOrderId(orderId);
 }
 
-
 /** Listar todos los pagos */
 export async function listPayments(): Promise<Payment[]> {
   return paymentRepository.findAllPayments();
+}
+
+/**Actualizar un pago */
+export async function updatePaymentStatus(
+  id: string,
+  status: 'PENDING' | 'APPROVED' | 'REJECTED'
+) {
+  return paymentRepository.updatePayment(id, { status });
 }

@@ -1,16 +1,10 @@
 import * as financialHistoryService from '../financial-history';
-
-export interface EarningsSummary {
-  recipientId: string;
-  recipientType: 'SELLER' | 'DELIVERY';
-  totalEarnings: number;
-  currency: string;
-}
+import { Earnings } from './earnings.types';
 
 export async function getEarnings(
   recipientId: string,
   recipientType: 'SELLER' | 'DELIVERY'
-): Promise<EarningsSummary> {
+): Promise<Earnings> {
   const history =
     await financialHistoryService.getFinancialHistoryByRecipient(
       recipientId,

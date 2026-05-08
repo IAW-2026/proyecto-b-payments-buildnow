@@ -2,19 +2,23 @@
 // TODO: Implementar recepción de webhooks del proveedor de pagos (e.g. Mercado Pago)
 
 import { ok, badRequest, internalError } from '@/lib/http';
+import { updatePaymentStatus } from '@/modules/payments';
+import { recordTransaction } from '@/modules/transactions';
 
 /** POST /api/payments/webhooks — Recibir notificación de webhook */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // TODO: Validar firma/autenticidad del webhook
-    // TODO: Procesar el evento según su tipo
-    console.log('Webhook received:', body);
+    const { paymentId, status, externalReference } = body;
 
-    if (!body || !body.type) {
+    if (!paymentId || !status || !externalReference) {
       return badRequest('Invalid webhook payload');
     }
+
+    await updatePaymentStatus(paymentId, status);
+
+    await recordTransaction({ paymentId, orderId: externalReference, status, externalReference });
 
     // TODO: Validar firma/autenticidad del webhook
 

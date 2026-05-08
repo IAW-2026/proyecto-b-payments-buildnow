@@ -1,16 +1,4 @@
-export interface FinancialHistoryRecord {
-    id: string;
-    orderId: string;
-    paymentId: string;
-    recipientId: string;
-    recipientType: 'SELLER' | 'DELIVERY';
-    amount: number;
-    currency: string;
-    movementType: 'PAYOUT' | 'COMMISSION' | 'REFUND';
-    status: 'PENDING' | 'COMPLETED';
-    createdAt: string;
-}
-
+import { FinancialHistoryRecord } from './financial-history.types';
 import * as repository from './financial-history.repository';
 
 /** Registrar movimiento financiero */

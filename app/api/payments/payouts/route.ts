@@ -1,6 +1,7 @@
 // API Route: /api/payments/payouts
 // TODO: Implementar lógica real de payouts
 
+import { createPayout, getPayoutsByRecipient } from '@/modules/payouts';
 import { ok, created, internalError, badRequest } from '@/lib/http';
 
 /** GET — Listar payouts por recipient */
@@ -15,11 +16,16 @@ export async function GET(request: Request) {
       return badRequest('recipientId and recipientType are required');
     }
 
-    console.log('Fetching payouts for:', recipientId, recipientType);
+    if (recipientType !== 'SELLER' && recipientType !== 'DELIVERY') {
+      return badRequest('recipientType must be SELLER or DELIVERY');
+    }
 
-    // TODO: Integrar con payout.service
-    return ok([]);
+    const payouts = await getPayoutsByRecipient(
+      recipientId,
+      recipientType
+    );
 
+    return ok(payouts);
   } catch (error) {
     console.error('Error listing payouts:', error);
     return internalError();
@@ -33,18 +39,18 @@ export async function POST(request: Request) {
 
     const { orderId, recipientId, recipientType, amount } = body;
 
-    if (!orderId || !recipientId || !recipientType || !amount) {
+    if (!orderId || !recipientId || !recipientType || amount == null) {
       return badRequest('Missing required fields');
     }
 
-    console.log('Creating payout:', body);
-
-    // TODO: Integrar con payout.service
-    return created({
-      id: 'mock-id',
-      status: 'PENDING',
-      createdAt: new Date().toISOString()
+    const payout = await createPayout({
+      orderId,
+      recipientId,
+      recipientType,
+      amount,
     });
+
+    return created(payout);
   } catch (error) {
     console.error('Error creating payout:', error);
     return internalError();

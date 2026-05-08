@@ -1,4 +1,4 @@
-import type { Payment } from './payment.service';
+import { Payment } from './payments.types';
 import * as db from '@/lib/db';
 
 /** Guardar un pago en la base de datos */
@@ -25,4 +25,20 @@ export async function findPaymentByOrderId(
 export async function findAllPayments(): Promise<Payment[]> {
   const records = db.getAll('payments');
   return records as Payment[];
+}
+
+/**Actualizar un pago */
+export async function updatePayment(
+  id: string,
+  data: Partial<Payment>
+): Promise<Payment | null> {
+  const record = db.update(
+    'payments',
+    id,
+    data as unknown as Record<string, unknown>
+  );
+
+  return record
+    ? (record as unknown as Payment)
+    : null;
 }

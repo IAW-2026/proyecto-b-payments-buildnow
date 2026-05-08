@@ -2,6 +2,8 @@
 // TODO: Implementar lógica real para un pago individual
 
 import { ok, notFound, internalError } from '@/lib/http';
+import { getPaymentById } from '@/modules/payments';
+
 
 interface Params {
   params: Promise<{ paymentId: string }>;
@@ -13,7 +15,14 @@ export async function GET(_request: Request, { params }: Params) {
     const { paymentId } = await params;
     // TODO: Buscar pago por ID mediante el servicio
     console.log('Fetching payment:', paymentId);
-    return notFound(`Payment ${paymentId} not found`);
+
+    const payment = await getPaymentById(paymentId);
+
+    if (!payment) {
+      return notFound(`Payment ${paymentId} not found`);
+    }
+
+    return ok(payment);
   } catch (error) {
     console.error('Error fetching payment:', error);
     return internalError();
