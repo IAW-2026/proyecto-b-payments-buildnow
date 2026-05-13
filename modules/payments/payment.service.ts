@@ -1,6 +1,4 @@
-// TODO: Implementar servicio de pagos
-// Este módulo manejará la lógica de negocio relacionada con pagos
-import { Payment } from './payments.types';
+import type { Payment } from '@/lib/generated/prisma/client';
 
 import * as paymentRepository from './payment.repository';
 
@@ -14,7 +12,7 @@ export async function createPayment(
     amount: data.amount,
     method: data.method,
     status: 'PENDING',
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(),
   };
 
   return paymentRepository.savePayment(payment);
@@ -30,7 +28,7 @@ export async function getPaymentById(
 /** Obtener un pago por OrderID */
 export async function getPaymentByOrderId(
   orderId: string
-): Promise<Payment | null> {
+): Promise<Payment[]> {
   return paymentRepository.findPaymentByOrderId(orderId);
 }
 

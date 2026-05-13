@@ -1,11 +1,7 @@
-// API Route: /api/payments
-// TODO: Implementar lógica real de pagos
-
-
 import { createPayment, getPaymentByOrderId } from '@/modules/payments';
 import { ok, created, internalError, badRequest } from '@/lib/http';
 
-/** GET — Obtener pagos por orderId */
+/** GET /API/payments?orderId=xx */
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
@@ -16,6 +12,7 @@ export async function GET(request: Request) {
     }
 
     const payments = await getPaymentByOrderId(orderId);
+
     return ok(payments);
   } catch (error) {
     console.error('Error listing payments:', error);
@@ -23,7 +20,7 @@ export async function GET(request: Request) {
   }
 }
 
-/** POST /api/payments — Crear un nuevo pago */
+/** POST /api/payments */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -34,12 +31,7 @@ export async function POST(request: Request) {
       return badRequest('Missing required fields');
     }
 
-    // TODO: Validar datos y crear pago mediante el servicio
-    const payment = await createPayment({
-      orderId,
-      amount,
-      method,
-    });
+    const payment = await createPayment({ orderId, amount, method });
 
     return created(payment);
   } catch (error) {
