@@ -1,5 +1,5 @@
 import * as payoutRepository from './payout.repository';
-import { Payout } from './payout.types';
+import { Prisma, RecipientType, type Payout, PayoutStatus } from '@/lib/generated/prisma/client';
 
 export interface CreatePayoutInput {
   orderId: string;
@@ -16,9 +16,9 @@ export async function createPayout(
     orderId: data.orderId,
     recipientId: data.recipientId,
     recipientType: data.recipientType,
-    amount: data.amount,
+    amount: new Prisma.Decimal(data.amount),
     status: 'PENDING',
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(),
   };
 
   return payoutRepository.savePayout(payout);
@@ -36,10 +36,19 @@ export async function listPayouts(): Promise<Payout[]> {
 
 export async function getPayoutsByRecipient(
   recipientId: string,
-  recipientType: 'SELLER' | 'DELIVERY'
+  recipientType: RecipientType
 ): Promise<Payout[]> {
   return payoutRepository.findPayoutsByRecipient(
     recipientId,
     recipientType
   );
+}
+
+export async function updatePayoutStatus(
+  id: string,
+  status: PayoutStatus
+): Promise<Payout> {
+  return payoutRepository.updatePayout(id, {
+    status,
+  });
 }

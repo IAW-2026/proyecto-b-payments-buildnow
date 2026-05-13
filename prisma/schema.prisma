@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum RecipientType {
+  SELLER
+  DELIVERY
+}
+
+enum PayoutStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TransactionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TransactionType {
+  PAYMENT
+  PAYOUT
+  COMMISSION
+}
+
+model Payment {
+  id        String        @id @default(uuid())
+  orderId   String        @unique
+  amount    Decimal
+  method    String
+  status    PaymentStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+
+  transactions     Transaction[]
+
+  @@map("payments")
+}
+
+model Payout {
+  id            String        @id @default(uuid())
+  orderId       String
+  recipientId   String
+  recipientType RecipientType
+  amount        Decimal
+  status        PayoutStatus  @default(PENDING)
+  createdAt     DateTime      @default(now())
+
+  transactions Transaction[]
+
+  @@map("payouts")
+}
+
+model Transaction {
+  id        String            @id @default(uuid())
+  type      TransactionType
+  orderId   String
+  amount    Decimal
+  status    TransactionStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+
+  paymentId String?
+  payoutId  String?
+  
+  payment Payment? @relation(fields: [paymentId], references: [id])
+  payout  Payout?  @relation(fields: [payoutId], references: [id])
+
+  @@map("transactions")
+}

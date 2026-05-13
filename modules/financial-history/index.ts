@@ -1,2 +1,2 @@
-export * from './financial-history.service';
-export * from './financial-history.repository';
+/*export * from './financial-history.service';
+export * from './financial-history.repository';*/

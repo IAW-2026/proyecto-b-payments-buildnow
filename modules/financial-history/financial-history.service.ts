@@ -1,17 +1,42 @@
-import { FinancialHistoryRecord } from './financial-history.types';
+/*import { RecipientType, MovementType, FinancialHistoryStatus, FinancialHistory } from '@/lib/generated/prisma/client';
 import * as repository from './financial-history.repository';
+import { Decimal } from '@prisma/client/runtime/wasm-compiler-edge';
 
-/** Registrar movimiento financiero */
-export async function createFinancialRecord(
-    data: FinancialHistoryRecord
-): Promise<FinancialHistoryRecord> {
-    return repository.saveFinancialRecord(data);
+export interface CreateFinancialRecordInput {
+    orderId: string;
+    recipientId: string;
+    recipientType: RecipientType;
+    amount: Decimal;
+    currency?: string;
+    movementType: MovementType;
+    paymentId: string;
 }
 
-/** Obtener movimientos por recipient */
+export async function createFinancialRecord(
+    data: CreateFinancialRecordInput
+): Promise<FinancialHistory> {
+    const record: FinancialHistory = {
+        id: crypto.randomUUID(),
+        orderId: data.orderId,
+        recipientId: data.recipientId,
+        recipientType: data.recipientType,
+        amount: data.amount,
+        currency: data.currency ?? 'USD',
+        movementType: data.movementType,
+        status: FinancialHistoryStatus.PENDING,
+        createdAt: new Date(),
+        paymentId: data.paymentId,
+    };
+
+    return repository.saveFinancialRecord(record);
+}
+
 export async function getFinancialHistoryByRecipient(
     recipientId: string,
-    recipientType: 'SELLER' | 'DELIVERY'
-): Promise<FinancialHistoryRecord[]> {
-    return repository.findByRecipient(recipientId, recipientType);
-}
+    recipientType: RecipientType
+): Promise<FinancialHistory[]> {
+    return repository.findByRecipient(
+        recipientId,
+        recipientType
+    );
+}*/

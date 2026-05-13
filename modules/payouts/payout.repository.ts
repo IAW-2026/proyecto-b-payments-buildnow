@@ -1,34 +1,53 @@
-import type { Payout } from './payout.service';
-import * as db from '@/lib/db';
+import { RecipientType, type Payout } from '@/lib/generated/prisma/client';
+import { prisma } from '@/lib/prisma';
 
 /** Guardar un payout */
 export async function savePayout(payout: Payout): Promise<Payout> {
-  const record = db.insert('payouts', payout);
-  return record as unknown as Payout;
+  return prisma.payout.create({
+    data: {
+      id: payout.id,
+      orderId: payout.orderId,
+      recipientId: payout.recipientId,
+      recipientType: payout.recipientType,
+      amount: payout.amount,
+      status: payout.status,
+      createdAt: payout.createdAt
+    },
+  });
 }
 
 /** Buscar un payout por ID */
 export async function findPayoutById(id: string): Promise<Payout | null> {
-  const record = db.getById('payouts', id);
-  return record ? (record as unknown as Payout) : null;
+  return prisma.payout.findUnique({
+    where: { id }
+  });
 }
 
 /** Obtener todos los payouts */
 export async function findAllPayouts(): Promise<Payout[]> {
-  const records = db.getAll('payouts');
-  return records as unknown as Payout[];
+  return prisma.payout.findMany();
 }
 
 /** Buscar payouts por recipient */
 export async function findPayoutsByRecipient(
   recipientId: string,
-  recipientType: string
+  recipientType: RecipientType
 ): Promise<Payout[]> {
-  const records = db.getAll('payouts') as unknown as Payout[];
+  return prisma.payout.findMany({
+    where: {
+      recipientId,
+      recipientType
+    }
+  });
+}
 
-  return records.filter(
-    (payout) =>
-      payout.recipientId === recipientId &&
-      payout.recipientType === recipientType
-  );
+/** Actualizar estado de payout */
+export async function updatePayout(
+  id: string,
+  data: Partial<Payout>
+): Promise<Payout> {
+  return prisma.payout.update({
+    where: { id },
+    data,
+  });
 }

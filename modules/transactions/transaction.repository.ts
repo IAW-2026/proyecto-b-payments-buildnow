@@ -1,37 +1,38 @@
-import type { Transaction } from './transaction.service';
-import * as db from '@/lib/db';
+import { Transaction } from '@/lib/generated/prisma/client';
+import { prisma } from '@/lib/prisma';
 
-/** Guardar una transacción */
 export async function saveTransaction(
   transaction: Transaction
 ): Promise<Transaction> {
-  const record = db.insert('transactions', transaction);
-  return record as unknown as Transaction;
+  return prisma.transaction.create({
+    data: transaction,
+  });
 }
 
-/** Buscar una transacción por ID */
 export async function findTransactionById(
   id: string
 ): Promise<Transaction | null> {
-  const record = db.getById('transactions', id);
-  return record ? (record as unknown as Transaction) : null;
+  return prisma.transaction.findUnique({
+    where: { id },
+  });
 }
 
-/** Obtener todas las transacciones */
 export async function findAllTransactions(): Promise<Transaction[]> {
-  const records = db.getAll('transactions');
-  return records as unknown as Transaction[];
+  return prisma.transaction.findMany();
 }
 
-/**búsqueda por paymentId*/
-export async function findTransactionByPaymentId(
+export async function findTransactionsByPaymentId(
   paymentId: string
-): Promise<Transaction | null> {
-  const record = db.findBy(
-    'transactions',
-    'paymentId',
-    paymentId
-  );
+): Promise<Transaction[]> {
+  return prisma.transaction.findMany({
+    where: { paymentId },
+  });
+}
 
-  return record ? (record as unknown as Transaction) : null;
+export async function findTransactionByOrderId(
+  orderId: string
+): Promise<Transaction[]> {
+  return prisma.transaction.findMany({
+    where: { orderId },
+  });
 }

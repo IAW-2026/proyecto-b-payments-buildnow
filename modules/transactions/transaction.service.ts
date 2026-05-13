@@ -1,11 +1,18 @@
+import { Decimal } from '@prisma/client/runtime/wasm-compiler-edge';
 import * as transactionRepository from './transaction.repository';
-import { Transaction } from './transaction.type';
+import {
+  Transaction,
+  TransactionStatus,
+  TransactionType,
+} from '@/lib/generated/prisma/client';
 
 export interface RecordTransactionInput {
-  paymentId: string;
   orderId: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  externalReference: string;
+  amount: Decimal;
+  type: TransactionType;
+  status?: TransactionStatus;
+  paymentId?: string;
+  payoutId?: string;
 }
 
 export async function recordTransaction(
@@ -13,11 +20,13 @@ export async function recordTransaction(
 ): Promise<Transaction> {
   const transaction: Transaction = {
     id: crypto.randomUUID(),
-    paymentId: data.paymentId,
     orderId: data.orderId,
-    status: data.status,
-    externalReference: data.externalReference,
-    createdAt: new Date().toISOString(),
+    amount: data.amount,
+    type: data.type,
+    status: data.status ?? TransactionStatus.PENDING,
+    paymentId: data.paymentId ?? null,
+    payoutId: data.payoutId ?? null,
+    createdAt: new Date(),
   };
 
   return transactionRepository.saveTransaction(transaction);

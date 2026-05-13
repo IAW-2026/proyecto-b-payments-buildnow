@@ -1,6 +1,7 @@
-import { ok, internalError, badRequest } from '@/lib/http';
+import { ok, badRequest, internalError } from '@/lib/http';
+import { getEarningsByRecipient } from '@/modules/earnings';
+import { RecipientType } from '@/lib/generated/prisma/client';
 
-/** GET /api/payments/earnings?recipientId=&recipientType= */
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
@@ -12,18 +13,23 @@ export async function GET(request: Request) {
       return badRequest('recipientId and recipientType are required');
     }
 
-    console.log('Fetching earnings for:', recipientId, recipientType);
+    if (
+      recipientType !== 'SELLER' &&
+      recipientType !== 'DELIVERY'
+    ) {
+      return badRequest(
+        'recipientType must be SELLER or DELIVERY'
+      );
+    }
 
-    // TODO: Integrar con earning.service
-    return ok({
+    const earnings = await getEarningsByRecipient(
       recipientId,
-      recipientType,
-      totalEarnings: 0,
-      currency: 'ARS'
-    });
+      recipientType as RecipientType
+    );
 
+    return ok(earnings);
   } catch (error) {
-    console.error('Error listing earnings:', error);
+    console.error('Error getting earnings:', error);
     return internalError();
   }
 }
