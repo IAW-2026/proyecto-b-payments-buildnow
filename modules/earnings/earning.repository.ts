@@ -14,7 +14,7 @@ export async function findApprovedPayoutsByRecipient(
     where: {
       recipientId,
       recipientType,
-      status: PayoutStatus.COMPLETED,
+      status: PayoutStatus.APPROVED,
     },
   });
 }
