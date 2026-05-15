@@ -28,7 +28,8 @@ export type RecipientType = (typeof RecipientType)[keyof typeof RecipientType]
 
 export const PayoutStatus = {
   PENDING: 'PENDING',
-  COMPLETED: 'COMPLETED'
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
 } as const
 
 export type PayoutStatus = (typeof PayoutStatus)[keyof typeof PayoutStatus]

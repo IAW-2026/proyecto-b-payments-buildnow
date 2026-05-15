@@ -1,21 +1,29 @@
-import { ok, badRequest, internalError } from '@/lib/http';
+import { ok, badRequest, internalError, unauthorized } from '@/lib/http';
 import { getEarningsByRecipient } from '@/modules/earnings';
 import { RecipientType } from '@/lib/generated/prisma/client';
+import { auth } from '@clerk/nextjs/server';
 
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
 
-    const recipientId = url.searchParams.get('recipientId');
     const recipientType = url.searchParams.get('recipientType');
 
-    if (!recipientId || !recipientType) {
+    const { userId, sessionClaims } = await auth();
+    const role = sessionClaims?.metadata?.role;
+
+    if (!userId) {
+      return unauthorized('Unauthorized');
+    }
+
+
+    if (!role) {
       return badRequest('recipientId and recipientType are required');
     }
 
     if (
-      recipientType !== 'SELLER' &&
-      recipientType !== 'DELIVERY'
+      role !== 'SELLER' &&
+      role !== 'DELIVERY'
     ) {
       return badRequest(
         'recipientType must be SELLER or DELIVERY'
@@ -23,8 +31,8 @@ export async function GET(request: Request) {
     }
 
     const earnings = await getEarningsByRecipient(
-      recipientId,
-      recipientType as RecipientType
+      userId,
+      role as RecipientType
     );
 
     return ok(earnings);

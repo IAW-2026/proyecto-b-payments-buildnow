@@ -44,6 +44,7 @@ enum TransactionType {
 
 model Payment {
   id        String        @id @default(uuid())
+  userId    String
   orderId   String        @unique
   amount    Decimal
   method    String

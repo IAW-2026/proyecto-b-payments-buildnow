@@ -5,19 +5,19 @@ import {
 } from '@/lib/generated/prisma/client';
 
 export interface EarningsSummary {
-  recipientId: string;
+  userId: string;
   recipientType: RecipientType;
   totalEarnings: Prisma.Decimal;
   payoutsCount: number;
 }
 
 export async function getEarningsByRecipient(
-  recipientId: string,
+  userId: string,
   recipientType: RecipientType
 ): Promise<EarningsSummary> {
   const payouts =
     await earningsRepository.findApprovedPayoutsByRecipient(
-      recipientId,
+      userId,
       recipientType
     );
 
@@ -28,7 +28,7 @@ export async function getEarningsByRecipient(
   }
 
   return {
-    recipientId,
+    userId,
     recipientType,
     totalEarnings,
     payoutsCount: payouts.length,

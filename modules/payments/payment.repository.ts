@@ -6,6 +6,7 @@ export async function savePayment(payment: Payment): Promise<Payment> {
   return prisma.payment.create({
     data: {
       id: payment.id,
+      userId: payment.userId,
       orderId: payment.orderId,
       amount: payment.amount,
       method: payment.method,
@@ -16,18 +17,27 @@ export async function savePayment(payment: Payment): Promise<Payment> {
 }
 
 /** Buscar un pago por ID en la base de datos */
-export async function findPaymentById(id: string): Promise<Payment | null> {
-  return prisma.payment.findUnique({
-    where: { id }
+export async function findPaymentByUserId(
+  userId: string
+): Promise<Payment[]> {
+  return prisma.payment.findMany({
+    where: { userId },
+    orderBy: {
+      createdAt: 'desc',
+    },
   });
 }
 
 /** Buscar pago por orderId */
-export async function findPaymentByOrderId(
-  orderId: string
-): Promise<Payment[]> {
-  return prisma.payment.findMany({
-    where: { orderId }
+export async function findPaymentByOrderIdAndUserId(
+  orderId: string,
+  userId: string
+): Promise<Payment | null> {
+  return prisma.payment.findFirst({
+    where: {
+      orderId,
+      userId,
+    },
   });
 }
 
