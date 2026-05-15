@@ -1,25 +1,21 @@
-import { ok, notFound, internalError, badRequest } from '@/lib/http';
-import { getPaymentById, updatePaymentStatus } from '@/modules/payments';
+import { ok, internalError, unauthorized } from '@/lib/http';
+import { getPaymentsByUserId } from '@/modules/payments';
+import { auth } from '@clerk/nextjs/server';
 
 
-interface Params {
-  params: Promise<{ paymentId: string }>;
-}
-
-/** GET /api/payments/:paymentId*/
-export async function GET(_request: Request, { params }: Params) {
+export async function GET() {
   try {
-    const { paymentId } = await params;
+    const { userId } = await auth();
 
-    const payment = await getPaymentById(paymentId);
-
-    if (!payment) {
-      return notFound(`Payment ${paymentId} not found`);
+    if (!userId) {
+      return unauthorized('Unauthorized');
     }
 
-    return ok(payment);
+    const payments = await getPaymentsByUserId(userId);
+
+    return ok(payments);
   } catch (error) {
-    console.error('Error fetching payment:', error);
+    console.error('Error fetching payments:', error);
     return internalError();
   }
 }

@@ -3,7 +3,7 @@ import { Prisma, RecipientType, type Payout, PayoutStatus } from '@/lib/generate
 
 export interface CreatePayoutInput {
   orderId: string;
-  recipientId: string;
+  userId: string;
   recipientType: 'SELLER' | 'DELIVERY';
   amount: number;
 }
@@ -14,7 +14,7 @@ export async function createPayout(
   const payout: Payout = {
     id: crypto.randomUUID(),
     orderId: data.orderId,
-    recipientId: data.recipientId,
+    recipientId: data.userId,
     recipientType: data.recipientType,
     amount: new Prisma.Decimal(data.amount),
     status: 'PENDING',
@@ -35,11 +35,11 @@ export async function listPayouts(): Promise<Payout[]> {
 }
 
 export async function getPayoutsByRecipient(
-  recipientId: string,
+  userId: string,
   recipientType: RecipientType
 ): Promise<Payout[]> {
   return payoutRepository.findPayoutsByRecipient(
-    recipientId,
+    userId,
     recipientType
   );
 }

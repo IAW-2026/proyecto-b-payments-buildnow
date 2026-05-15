@@ -1,19 +1,22 @@
-// API Route: /api/payments/payouts
-// TODO: Implementar lógica real de payouts
-
 import { createPayout, getPayoutsByRecipient } from '@/modules/payouts';
-import { ok, created, internalError, badRequest } from '@/lib/http';
+import { ok, created, internalError, badRequest, unauthorized } from '@/lib/http';
+import { auth } from '@clerk/nextjs/server';
 
 /** GET — Listar payouts por recipient */
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
 
-    const recipientId = url.searchParams.get('recipientId');
     const recipientType = url.searchParams.get('recipientType');
 
-    if (!recipientId || !recipientType) {
-      return badRequest('recipientId and recipientType are required');
+    const { userId } = await auth();
+
+    if (!userId) {
+      return unauthorized('Unauthorized');
+    }
+
+    if (!recipientType) {
+      return badRequest('recipientType are required');
     }
 
     if (recipientType !== 'SELLER' && recipientType !== 'DELIVERY') {
@@ -21,7 +24,7 @@ export async function GET(request: Request) {
     }
 
     const payouts = await getPayoutsByRecipient(
-      recipientId,
+      userId,
       recipientType
     );
 
@@ -37,15 +40,21 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const { orderId, recipientId, recipientType, amount } = body;
+    const { userId } = await auth();
 
-    if (!orderId || !recipientId || !recipientType || amount == null) {
+    if (!userId) {
+      return unauthorized('Unauthorized');
+    }
+
+    const { orderId, recipientType, amount } = body;
+
+    if (!orderId || !recipientType || amount == null) {
       return badRequest('Missing required fields');
     }
 
     const payout = await createPayout({
       orderId,
-      recipientId,
+      userId,
       recipientType,
       amount,
     });
