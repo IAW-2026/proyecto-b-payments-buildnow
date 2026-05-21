@@ -1,6 +1,6 @@
 import { createPayment, getPaymentByOrderIdAndUserId } from '@/modules/payments';
-import { ok, created, internalError, badRequest, unauthorized } from '@/lib/http';
-import { auth } from '@clerk/nextjs/server';
+import { ok, created, internalError, forbidden, badRequest, unauthorized } from '@/lib/http';
+import { requireAuth } from '@/lib/auth';
 
 /** GET /API/payments?orderId=xx */
 export async function GET(request: Request) {
@@ -8,17 +8,24 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const orderId = url.searchParams.get('orderId');
 
-    const { userId } = await auth();
+    const { userId, roles } = await requireAuth();
 
     if (!userId) {
       return unauthorized('Unauthorized');
+    }
+
+    const isBuyer = roles.includes('BUYER');
+
+    if (!isBuyer) {
+      return forbidden('Requires BUYER role');
     }
 
     if (!orderId) {
       return badRequest('orderId is required');
     }
 
-    const payment = await getPaymentByOrderIdAndUserId(orderId, userId);
+    const payment =
+      await getPaymentByOrderIdAndUserId(orderId, userId);
 
     return ok(payment);
   } catch (error) {
@@ -32,10 +39,16 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const { userId } = await auth();
+    const { userId, roles } = await requireAuth();
 
     if (!userId) {
       return unauthorized('Unauthorized');
+    }
+
+    const isBuyer = roles.includes('BUYER');
+
+    if (!isBuyer) {
+      return forbidden('Requires BUYER role');
     }
 
     const { orderId, amount, method } = body;
@@ -44,7 +57,12 @@ export async function POST(request: Request) {
       return badRequest('Missing required fields');
     }
 
-    const payment = await createPayment({ orderId, amount, method, userId });
+    const payment = await createPayment({
+      orderId,
+      amount,
+      method,
+      userId,
+    });
 
     return created(payment);
   } catch (error) {
