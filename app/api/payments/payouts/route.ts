@@ -1,27 +1,31 @@
 import { createPayout, getPayoutsByRecipient } from '@/modules/payouts';
-import { ok, created, internalError, badRequest, unauthorized } from '@/lib/http';
-import { auth } from '@clerk/nextjs/server';
+import { ok, forbidden, created, internalError, badRequest, unauthorized } from '@/lib/http';
+import { requireAuth } from '@/lib/auth';
+import { RecipientType } from '@/lib/generated/prisma/enums';
 
 /** GET — Listar payouts por recipient */
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const url = new URL(request.url);
-
-    const recipientType = url.searchParams.get('recipientType');
-
-    const { userId } = await auth();
+    const { userId, roles } = await requireAuth();
 
     if (!userId) {
       return unauthorized('Unauthorized');
     }
 
-    if (!recipientType) {
-      return badRequest('recipientType are required');
+    const hasAccess =
+      roles.includes('SELLER') ||
+      roles.includes('DELIVERY');
+
+    if (!hasAccess) {
+      return forbidden(
+        'Requires SELLER or DELIVERY role'
+      );
     }
 
-    if (recipientType !== 'SELLER' && recipientType !== 'DELIVERY') {
-      return badRequest('recipientType must be SELLER or DELIVERY');
-    }
+    const recipientType: RecipientType =
+      roles.includes('SELLER')
+        ? 'SELLER'
+        : 'DELIVERY';
 
     const payouts = await getPayoutsByRecipient(
       userId,
@@ -40,15 +44,30 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const { userId } = await auth();
+    const { userId, roles } = await requireAuth();
 
     if (!userId) {
       return unauthorized('Unauthorized');
     }
 
-    const { orderId, recipientType, amount } = body;
+    const hasAccess =
+      roles.includes('SELLER') ||
+      roles.includes('DELIVERY');
 
-    if (!orderId || !recipientType || amount == null) {
+    if (!hasAccess) {
+      return forbidden(
+        'Requires SELLER or DELIVERY role'
+      );
+    }
+
+    const recipientType: RecipientType =
+      roles.includes('SELLER')
+        ? 'SELLER'
+        : 'DELIVERY';
+
+    const { orderId, amount } = body;
+
+    if (!orderId || amount == null) {
       return badRequest('Missing required fields');
     }
 
