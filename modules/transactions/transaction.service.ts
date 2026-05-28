@@ -15,6 +15,7 @@ export interface RecordTransactionInput {
   payoutId?: string;
 }
 
+/** Crear una transaction */
 export async function recordTransaction(
   data: RecordTransactionInput
 ): Promise<Transaction> {
@@ -30,6 +31,50 @@ export async function recordTransaction(
   };
 
   return transactionRepository.saveTransaction(transaction);
+}
+
+/**
+ * Crear una transaction solo si no existe otra
+ * con el mismo paymentId y status (idempotencia).
+ * Retorna la transaction existente si ya existe, o la nueva si se creó.
+ */
+export async function createTransactionIfNotExists(
+  data: RecordTransactionInput
+): Promise<Transaction> {
+  const status = data.status ?? TransactionStatus.PENDING;
+
+  if (data.paymentId) {
+    const existing = await transactionRepository
+      .findTransactionByPaymentIdAndStatus(
+        data.paymentId,
+        status
+      );
+
+    if (existing) {
+      console.info(
+        '[TRANSACTION][INFO] Duplicate skipped',
+        {
+          paymentId: data.paymentId,
+          status,
+        }
+      );
+      return existing;
+    }
+  }
+
+  return recordTransaction(data);
+}
+
+/** Buscar transaction por paymentId y status */
+export async function getTransactionByPaymentIdAndStatus(
+  paymentId: string,
+  status: TransactionStatus
+): Promise<Transaction | null> {
+  return transactionRepository
+    .findTransactionByPaymentIdAndStatus(
+      paymentId,
+      status
+    );
 }
 
 export async function getTransactionById(

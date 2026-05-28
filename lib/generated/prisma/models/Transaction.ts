@@ -521,10 +521,6 @@ export type EnumTransactionStatusFieldUpdateOperationsInput = {
   set?: $Enums.TransactionStatus
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type TransactionCreateWithoutPaymentInput = {
   id?: string
   type: $Enums.TransactionType
