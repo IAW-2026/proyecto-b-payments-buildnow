@@ -79,6 +79,12 @@ export const PaymentScalarFieldEnum = {
   amount: 'amount',
   method: 'method',
   status: 'status',
+  mercadopagoId: 'mercadopagoId',
+  preferenceId: 'preferenceId',
+  externalReference: 'externalReference',
+  statusDetail: 'statusDetail',
+  payerEmail: 'payerEmail',
+  paidAt: 'paidAt',
   createdAt: 'createdAt'
 } as const
 
