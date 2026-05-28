@@ -34,11 +34,15 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { userId } = await auth();
 
-    if (!userId) {
-      return unauthorized('Unauthorized');
+    if (process.env.NODE_ENV === 'production') {
+      const { userId } = await auth();
+      if (!userId) {
+        return unauthorized('Unauthorized');
+      }
     }
+    /**UserID para pruebas */
+    const userId = 'prueba-1';
 
     const { orderId, items, totalAmount } = body;
 
@@ -53,6 +57,13 @@ export async function POST(request: Request) {
     if (totalAmount == null) {
       return badRequest('totalAmount is required');
     }
+
+    const mpItems = items.map((item: any) => ({
+      title: item.title,
+      quantity: item.quantity,
+      unit_price: Number(item.unit_price),
+      currency_id: 'ARS'
+    }));
 
     /** 1. Crear Preference MP */
     const preference =

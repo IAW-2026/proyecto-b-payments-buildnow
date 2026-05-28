@@ -110,10 +110,6 @@ export async function POST(request: Request) {
             );
         }
 
-        if (process.env.NODE_ENV === 'production') {
-            console.info('[MP WEBHOOK][INFO] Signature verified')
-        }
-
         /**
          * Buscar pago real en MercadoPago
          */
@@ -135,9 +131,6 @@ export async function POST(request: Request) {
             }
         );
 
-        /**
-         * Obtener datos importantes
-         */
         const mercadopagoId =
             String(paymentInfo.id);
 
