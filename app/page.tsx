@@ -1,40 +1,62 @@
 import {
   SignInButton,
   UserButton,
-} from '@clerk/nextjs';
+} from "@clerk/nextjs";
 
-import { auth } from '@clerk/nextjs/server';
+import { auth } from "@clerk/nextjs/server";
+
+import MercadoPagoButton
+  from "@/components/MercadoPagoButton";
 
 export default async function HomePage() {
 
   const { userId } = await auth();
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center px-6">
+    <main className="
+      min-h-screen
+      bg-zinc-950
+      text-white
+      flex
+      flex-col
+      items-center
+      justify-center
+      px-6
+    ">
 
-      <div className="max-w-xl text-center space-y-6">
+      <div className="
+        max-w-xl
+        text-center
+        space-y-6
+      ">
 
-        <h1 className="text-5xl font-bold tracking-tight">
+        <h1 className="text-5xl font-bold">
           Payments Platform
         </h1>
 
-        <p className="text-zinc-400 text-lg">
-          Sistema de pagos y payouts para plataformas tipo delivery.
-        </p>
-
         {!userId ? (
-          <div className="pt-4">
-            <SignInButton />
-          </div>
-        ) : (
-          <div className="flex flex-col items-center gap-4 pt-4">
 
-            <p className="text-green-400 font-medium">
+          <SignInButton />
+
+        ) : (
+
+          <div className="
+            flex
+            flex-col
+            items-center
+            gap-6
+          ">
+
+            <UserButton />
+
+            <p className="text-green-400">
               Sesión iniciada
             </p>
 
-            <UserButton />
+            <MercadoPagoButton />
+
           </div>
+
         )}
 
       </div>

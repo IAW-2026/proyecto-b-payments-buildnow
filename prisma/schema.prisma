@@ -43,15 +43,32 @@ enum TransactionType {
 }
 
 model Payment {
-  id        String        @id @default(uuid())
-  userId    String
-  orderId   String        @unique
-  amount    Decimal
-  method    String
-  status    PaymentStatus @default(PENDING)
-  createdAt DateTime      @default(now())
+  id                 String        @id @default(uuid())
 
-  transactions     Transaction[]
+  userId             String
+  orderId            String        @unique
+
+  amount             Decimal
+
+  method             String
+
+  status             PaymentStatus @default(PENDING)
+
+  mercadopagoId      String?       @unique
+
+  preferenceId       String?       @unique
+
+  externalReference  String?
+
+  statusDetail       String?
+
+  payerEmail         String?
+
+  paidAt             DateTime?
+
+  createdAt          DateTime      @default(now())
+
+  transactions       Transaction[]
 
   @@map("payments")
 }

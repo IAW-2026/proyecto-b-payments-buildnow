@@ -1,4 +1,4 @@
-import { Transaction } from '@/lib/generated/prisma/client';
+import { Transaction, TransactionStatus } from '@/lib/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 
 export async function saveTransaction(
@@ -34,5 +34,18 @@ export async function findTransactionByOrderId(
 ): Promise<Transaction[]> {
   return prisma.transaction.findMany({
     where: { orderId },
+  });
+}
+
+/** Buscar transaction por paymentId y status (para idempotencia) */
+export async function findTransactionByPaymentIdAndStatus(
+  paymentId: string,
+  status: TransactionStatus
+): Promise<Transaction | null> {
+  return prisma.transaction.findFirst({
+    where: {
+      paymentId,
+      status,
+    },
   });
 }
