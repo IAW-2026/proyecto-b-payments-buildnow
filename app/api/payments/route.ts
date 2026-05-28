@@ -11,17 +11,24 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const orderId = url.searchParams.get('orderId');
 
-    const { userId } = await auth();
+    const { userId, roles } = await requireAuth();
 
     if (!userId) {
       return unauthorized('Unauthorized');
+    }
+
+    const isBuyer = roles.includes('BUYER');
+
+    if (!isBuyer) {
+      return forbidden('Requires BUYER role');
     }
 
     if (!orderId) {
       return badRequest('orderId is required');
     }
 
-    const payment = await getPaymentByOrderIdAndUserId(orderId, userId);
+    const payment =
+      await getPaymentByOrderIdAndUserId(orderId, userId);
 
     return ok(payment);
   } catch (error) {
