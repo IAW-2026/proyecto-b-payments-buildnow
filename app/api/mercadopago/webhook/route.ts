@@ -2,6 +2,8 @@ import { Payment } from 'mercadopago';
 import { mpClient } from '@/lib/mercadopago';
 
 import * as paymentService from '@/modules/payments/payment.service';
+import * as transactionService from '@/modules/transactions/transaction.service';
+import { TransactionType } from '@/lib/generated/prisma/client';
 
 import {
     validateMercadoPagoSignature,
@@ -203,6 +205,29 @@ export async function POST(request: Request) {
                 updated: !!updatedPayment,
             }
         );
+
+        /**
+         * Registrar transaction para el nuevo estado
+         * (idempotente: no duplica si ya existe)
+         */
+        if (updatedPayment) {
+            await transactionService
+                .createTransactionIfNotExists({
+                    paymentId: updatedPayment.id,
+                    orderId: updatedPayment.orderId,
+                    amount: updatedPayment.amount,
+                    type: TransactionType.PAYMENT,
+                    status,
+                });
+
+            console.info(
+                '[MP WEBHOOK][INFO] Transaction recorded',
+                {
+                    paymentId: updatedPayment.id,
+                    status,
+                }
+            );
+        }
 
         /**
          * IMPORTANTE:

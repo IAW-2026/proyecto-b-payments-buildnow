@@ -1,7 +1,11 @@
 import type { Payment } from '@/lib/generated/prisma/client';
-import { PaymentStatus } from '@/lib/generated/prisma/client';
-
+import {
+  PaymentStatus,
+  TransactionType,
+} from '@/lib/generated/prisma/client';
+import { TransactionStatus } from '@/lib/generated/prisma/client';
 import * as paymentRepository from './payment.repository';
+import * as transactionService from '@/modules/transactions/transaction.service';
 
 type CreatePaymentInput = Pick<
   Payment,
@@ -37,7 +41,7 @@ export async function createPayment(
     amount: data.amount,
     method: data.method,
 
-    status: 'PENDING',
+    status: PaymentStatus.PENDING,
 
     statusDetail: null,
     payerEmail: null,
@@ -54,8 +58,19 @@ export async function createPayment(
     createdAt: new Date(),
   };
 
-  return paymentRepository
+  const savedPayment = await paymentRepository
     .savePayment(payment);
+
+  /** Registrar transaction inicial PENDING */
+  await transactionService.createTransactionIfNotExists({
+    paymentId: savedPayment.id,
+    orderId: savedPayment.orderId,
+    amount: savedPayment.amount,
+    type: TransactionType.PAYMENT,
+    status: TransactionStatus.PENDING,
+  });
+
+  return savedPayment;
 }
 
 /** Obtener pagos por userId */

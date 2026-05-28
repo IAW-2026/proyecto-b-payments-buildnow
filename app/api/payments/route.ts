@@ -1,6 +1,9 @@
 import { createPayment, getPaymentByOrderIdAndUserId } from '@/modules/payments';
 import { ok, created, internalError, badRequest, unauthorized } from '@/lib/http';
 import { auth } from '@clerk/nextjs/server';
+import { Prisma } from '@/lib/generated/prisma/client';
+import * as mercadopagoService from '@/modules/mercadopago/mercadopago.service';
+
 
 /** GET /API/payments?orderId=xx */
 export async function GET(request: Request) {
@@ -31,22 +34,51 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-
     const { userId } = await auth();
 
     if (!userId) {
       return unauthorized('Unauthorized');
     }
 
-    const { orderId, amount, method } = body;
+    const { orderId, items, totalAmount } = body;
 
-    if (!orderId || amount == null || !method) {
-      return badRequest('Missing required fields');
+    if (!orderId) {
+      return badRequest('orderId is required');
     }
 
-    const payment = await createPayment({ orderId, amount, method, userId });
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return badRequest('items is required');
+    }
 
-    return created(payment);
+    if (totalAmount == null) {
+      return badRequest('totalAmount is required');
+    }
+
+    /** 1. Crear Preference MP */
+    const preference =
+      await mercadopagoService.createPreference({
+        items,
+        externalReference: orderId,
+      });
+
+    /** 2. Crear Payment local */
+    const payment = await createPayment({
+      userId,
+      orderId,
+      amount: new Prisma.Decimal(totalAmount),
+      method: 'mercadopago',
+      preferenceId: preference.preferenceId,
+      externalReference: orderId,
+    });
+
+    /** 3. Response */
+    return created({
+      payment,
+      preferenceId: preference.preferenceId,
+      initPoint: preference.initPoint,
+      sandboxInitPoint: preference.sandboxInitPoint,
+    });
+
   } catch (error) {
     console.error('Error creating payment:', error);
     return internalError();
