@@ -1,8 +1,9 @@
 import { createPayment, getPaymentByOrderIdAndUserId } from '@/modules/payments';
-import { ok, created, internalError, badRequest, unauthorized } from '@/lib/http';
+import { ok, created, internalError, badRequest, unauthorized, forbidden } from '@/lib/http';
 import { auth } from '@clerk/nextjs/server';
 import { Prisma } from '@/lib/generated/prisma/client';
 import * as mercadopagoService from '@/modules/mercadopago/mercadopago.service';
+import { requireAuth } from '@/lib/auth';
 
 
 /** GET /API/payments?orderId=xx */

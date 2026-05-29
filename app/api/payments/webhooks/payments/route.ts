@@ -19,6 +19,7 @@ export async function POST(request: Request) {
 
         const allowedStatuses = ['PENDING', 'APPROVED', 'REJECTED'];
 
+        console.log(paymentId);
         if (!allowedStatuses.includes(status)) {
             return badRequest('Invalid payment status');
         }

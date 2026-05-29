@@ -116,6 +116,8 @@ export async function POST(request: Request) {
         const paymentClient =
             new Payment(mpClient);
 
+
+        console.log('la ide es: ', { dataId });
         const paymentInfo =
             await paymentClient.get({
                 id: dataId,
