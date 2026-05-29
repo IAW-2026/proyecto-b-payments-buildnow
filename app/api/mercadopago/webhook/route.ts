@@ -169,7 +169,7 @@ export async function POST(request: Request) {
          */
         const updatedPayment =
             await paymentService
-                .updatePaymentByOrderId(
+                .updatePaymentStatusByOrderId(
                     externalReference,
                     {
                         status,

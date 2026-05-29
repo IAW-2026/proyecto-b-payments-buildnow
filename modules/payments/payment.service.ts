@@ -115,7 +115,7 @@ export async function updatePaymentStatus(
 }
 
 /** Actualizar payment por orderId */
-export async function updatePaymentByOrderId(
+export async function updatePaymentStatusByOrderId(
   orderId: string,
   data: UpdatePaymentInput
 ): Promise<Payment | null> {
@@ -126,7 +126,6 @@ export async function updatePaymentByOrderId(
       data
     );
 }
-
 /** Obtener payment por orderId */
 export async function getPaymentByOrderId(
   orderId: string
