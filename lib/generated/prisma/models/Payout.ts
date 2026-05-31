@@ -194,7 +194,7 @@ export type PayoutGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 export type PayoutGroupByOutputType = {
   id: string
   orderId: string
-  recipientId: string
+  recipientId: string | null
   recipientType: $Enums.RecipientType
   amount: runtime.Decimal
   status: $Enums.PayoutStatus
@@ -227,7 +227,7 @@ export type PayoutWhereInput = {
   NOT?: Prisma.PayoutWhereInput | Prisma.PayoutWhereInput[]
   id?: Prisma.StringFilter<"Payout"> | string
   orderId?: Prisma.StringFilter<"Payout"> | string
-  recipientId?: Prisma.StringFilter<"Payout"> | string
+  recipientId?: Prisma.StringNullableFilter<"Payout"> | string | null
   recipientType?: Prisma.EnumRecipientTypeFilter<"Payout"> | $Enums.RecipientType
   amount?: Prisma.DecimalFilter<"Payout"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumPayoutStatusFilter<"Payout"> | $Enums.PayoutStatus
@@ -238,7 +238,7 @@ export type PayoutWhereInput = {
 export type PayoutOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   orderId?: Prisma.SortOrder
-  recipientId?: Prisma.SortOrder
+  recipientId?: Prisma.SortOrderInput | Prisma.SortOrder
   recipientType?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -252,7 +252,7 @@ export type PayoutWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.PayoutWhereInput[]
   NOT?: Prisma.PayoutWhereInput | Prisma.PayoutWhereInput[]
   orderId?: Prisma.StringFilter<"Payout"> | string
-  recipientId?: Prisma.StringFilter<"Payout"> | string
+  recipientId?: Prisma.StringNullableFilter<"Payout"> | string | null
   recipientType?: Prisma.EnumRecipientTypeFilter<"Payout"> | $Enums.RecipientType
   amount?: Prisma.DecimalFilter<"Payout"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumPayoutStatusFilter<"Payout"> | $Enums.PayoutStatus
@@ -263,7 +263,7 @@ export type PayoutWhereUniqueInput = Prisma.AtLeast<{
 export type PayoutOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   orderId?: Prisma.SortOrder
-  recipientId?: Prisma.SortOrder
+  recipientId?: Prisma.SortOrderInput | Prisma.SortOrder
   recipientType?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -281,7 +281,7 @@ export type PayoutScalarWhereWithAggregatesInput = {
   NOT?: Prisma.PayoutScalarWhereWithAggregatesInput | Prisma.PayoutScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Payout"> | string
   orderId?: Prisma.StringWithAggregatesFilter<"Payout"> | string
-  recipientId?: Prisma.StringWithAggregatesFilter<"Payout"> | string
+  recipientId?: Prisma.StringNullableWithAggregatesFilter<"Payout"> | string | null
   recipientType?: Prisma.EnumRecipientTypeWithAggregatesFilter<"Payout"> | $Enums.RecipientType
   amount?: Prisma.DecimalWithAggregatesFilter<"Payout"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumPayoutStatusWithAggregatesFilter<"Payout"> | $Enums.PayoutStatus
@@ -291,7 +291,7 @@ export type PayoutScalarWhereWithAggregatesInput = {
 export type PayoutCreateInput = {
   id?: string
   orderId: string
-  recipientId: string
+  recipientId?: string | null
   recipientType: $Enums.RecipientType
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.PayoutStatus
@@ -302,7 +302,7 @@ export type PayoutCreateInput = {
 export type PayoutUncheckedCreateInput = {
   id?: string
   orderId: string
-  recipientId: string
+  recipientId?: string | null
   recipientType: $Enums.RecipientType
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.PayoutStatus
@@ -313,7 +313,7 @@ export type PayoutUncheckedCreateInput = {
 export type PayoutUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
-  recipientId?: Prisma.StringFieldUpdateOperationsInput | string
+  recipientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recipientType?: Prisma.EnumRecipientTypeFieldUpdateOperationsInput | $Enums.RecipientType
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumPayoutStatusFieldUpdateOperationsInput | $Enums.PayoutStatus
@@ -324,7 +324,7 @@ export type PayoutUpdateInput = {
 export type PayoutUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
-  recipientId?: Prisma.StringFieldUpdateOperationsInput | string
+  recipientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recipientType?: Prisma.EnumRecipientTypeFieldUpdateOperationsInput | $Enums.RecipientType
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumPayoutStatusFieldUpdateOperationsInput | $Enums.PayoutStatus
@@ -335,7 +335,7 @@ export type PayoutUncheckedUpdateInput = {
 export type PayoutCreateManyInput = {
   id?: string
   orderId: string
-  recipientId: string
+  recipientId?: string | null
   recipientType: $Enums.RecipientType
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.PayoutStatus
@@ -345,7 +345,7 @@ export type PayoutCreateManyInput = {
 export type PayoutUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
-  recipientId?: Prisma.StringFieldUpdateOperationsInput | string
+  recipientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recipientType?: Prisma.EnumRecipientTypeFieldUpdateOperationsInput | $Enums.RecipientType
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumPayoutStatusFieldUpdateOperationsInput | $Enums.PayoutStatus
@@ -355,7 +355,7 @@ export type PayoutUpdateManyMutationInput = {
 export type PayoutUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
-  recipientId?: Prisma.StringFieldUpdateOperationsInput | string
+  recipientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recipientType?: Prisma.EnumRecipientTypeFieldUpdateOperationsInput | $Enums.RecipientType
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumPayoutStatusFieldUpdateOperationsInput | $Enums.PayoutStatus
@@ -432,7 +432,7 @@ export type PayoutUpdateOneWithoutTransactionsNestedInput = {
 export type PayoutCreateWithoutTransactionsInput = {
   id?: string
   orderId: string
-  recipientId: string
+  recipientId?: string | null
   recipientType: $Enums.RecipientType
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.PayoutStatus
@@ -442,7 +442,7 @@ export type PayoutCreateWithoutTransactionsInput = {
 export type PayoutUncheckedCreateWithoutTransactionsInput = {
   id?: string
   orderId: string
-  recipientId: string
+  recipientId?: string | null
   recipientType: $Enums.RecipientType
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.PayoutStatus
@@ -468,7 +468,7 @@ export type PayoutUpdateToOneWithWhereWithoutTransactionsInput = {
 export type PayoutUpdateWithoutTransactionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
-  recipientId?: Prisma.StringFieldUpdateOperationsInput | string
+  recipientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recipientType?: Prisma.EnumRecipientTypeFieldUpdateOperationsInput | $Enums.RecipientType
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumPayoutStatusFieldUpdateOperationsInput | $Enums.PayoutStatus
@@ -478,7 +478,7 @@ export type PayoutUpdateWithoutTransactionsInput = {
 export type PayoutUncheckedUpdateWithoutTransactionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
-  recipientId?: Prisma.StringFieldUpdateOperationsInput | string
+  recipientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recipientType?: Prisma.EnumRecipientTypeFieldUpdateOperationsInput | $Enums.RecipientType
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumPayoutStatusFieldUpdateOperationsInput | $Enums.PayoutStatus
@@ -574,7 +574,7 @@ export type $PayoutPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     orderId: string
-    recipientId: string
+    recipientId: string | null
     recipientType: $Enums.RecipientType
     amount: runtime.Decimal
     status: $Enums.PayoutStatus

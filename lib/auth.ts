@@ -1,20 +1,37 @@
 import { auth } from '@clerk/nextjs/server';
 
-type Role =
-  | 'ADMIN'
-  | 'SELLER'
-  | 'DELIVERY'
-  | 'BUYER';
+export type Role =
+  | 'admin'
+  | 'seller'
+  | 'delivery'
+  | 'buyer';
 
+export async function requireAuth(...allowedRoles: Role[]) {
+  const isAdminRequired = allowedRoles.includes('admin');
 
-export async function requireAuth() {
+  if (process.env.DEV_AUTH_BYPASS === 'true' && !isAdminRequired) {
+    return {
+      userId: 'dev-user',
+      roles: ['seller', 'delivery', 'buyer'] as Role[],
+    };
+  }
+
   const { userId, sessionClaims } = await auth();
 
-  const roles =
-    (sessionClaims?.metadata?.roles as Role[]) || [];
+  
 
-  return {
-    userId,
-    roles,
-  };
+  if (!userId) {
+    throw new Error('UNAUTHORIZED');
+  }
+
+  const roles = (sessionClaims?.metadata?.role as string[]) || [];
+
+  if (
+    allowedRoles.length > 0 &&
+    !allowedRoles.some(role => roles.includes(role))
+  ) {
+    throw new Error('FORBIDDEN');
+  }
+
+  return { userId, roles };
 }

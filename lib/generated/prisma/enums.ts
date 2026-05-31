@@ -46,7 +46,8 @@ export type TransactionStatus = (typeof TransactionStatus)[keyof typeof Transact
 
 export const TransactionType = {
   PAYMENT: 'PAYMENT',
-  PAYOUT: 'PAYOUT',
+  PAYOUT_DELIVERY: 'PAYOUT_DELIVERY',
+  PAYOUT_SELLER: 'PAYOUT_SELLER',
   COMMISSION: 'COMMISSION'
 } as const
 

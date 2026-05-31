@@ -1,6 +1,5 @@
 import { createPayment, getPaymentByOrderIdAndUserId } from '@/modules/payments';
 import { ok, created, internalError, badRequest, unauthorized, forbidden } from '@/lib/http';
-import { auth } from '@clerk/nextjs/server';
 import { Prisma } from '@/lib/generated/prisma/client';
 import * as mercadopagoService from '@/modules/mercadopago/mercadopago.service';
 import { requireAuth } from '@/lib/auth';
@@ -12,16 +11,10 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const orderId = url.searchParams.get('orderId');
 
-    const { userId, roles } = await requireAuth();
+    const { userId } = await requireAuth('buyer');
 
     if (!userId) {
       return unauthorized('Unauthorized');
-    }
-
-    const isBuyer = roles.includes('BUYER');
-
-    if (!isBuyer) {
-      return forbidden('Requires BUYER role');
     }
 
     if (!orderId) {
@@ -41,16 +34,10 @@ export async function GET(request: Request) {
 /** POST /api/payments */
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
 
-    if (process.env.NODE_ENV === 'production') {
-      const { userId } = await auth();
-      if (!userId) {
-        return unauthorized('Unauthorized');
-      }
-    }
-    /**UserID para pruebas */
-    const userId = 'prueba-1';
+    const { userId } = await requireAuth('buyer');
+
+    const body = await request.json();
 
     const { orderId, items, totalAmount } = body;
 

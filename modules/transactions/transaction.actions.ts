@@ -1,23 +1,23 @@
 'use server';
 
-import { TransactionStatus, TransactionType } from '@/lib/generated/prisma/client';
+import { TransactionStatus } from '@/lib/generated/prisma/client';
+import { DashboardTransactionFilter } from '@/types/transactions';
+import { requireAuth } from '@/lib/auth';
 import { getTransactionsPaginated } from './transaction.service';
 
 export interface FetchTransactionsActionParams {
   page: number;
   limit: number;
   status?: TransactionStatus;
-  type?: TransactionType;
+  type?: DashboardTransactionFilter;
   search?: string;
 }
 
 export async function fetchTransactionsAction(params: FetchTransactionsActionParams) {
-  // TODO: Validate admin permissions here
-  // e.g. const session = await auth(); if (!session.user.isAdmin) throw new Error('Unauthorized');
+  await requireAuth('admin');
 
   const { transactions, pagination } = await getTransactionsPaginated(params);
 
-  // Serialize Prisma Decimal to string for Server Actions/Client Components
   const serializedTransactions = transactions.map((t) => ({
     ...t,
     amount: t.amount.toString(),

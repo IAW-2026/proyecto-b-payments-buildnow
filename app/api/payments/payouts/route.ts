@@ -1,86 +1,129 @@
-import { createPayout, getPayoutsByRecipient } from '@/modules/payouts';
+import { claimPayout, getPayoutsByRecipient } from '@/modules/payouts';
 import { ok, forbidden, created, internalError, badRequest, unauthorized } from '@/lib/http';
 import { requireAuth } from '@/lib/auth';
 import { RecipientType } from '@/lib/generated/prisma/enums';
+import * as transactionService from '@/modules/transactions/transaction.service';
+import { TransactionType } from '@/lib/generated/prisma/client';
 
 /** GET — Listar payouts por recipient */
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const { userId, roles } = await requireAuth();
+    const { userId, roles } =
+      await requireAuth(
+        'seller',
+        'delivery'
+      );
 
-    if (!userId) {
-      return unauthorized('Unauthorized');
+    const url = new URL(request.url);
+
+    const recipientType = url.searchParams.get('recipientType');
+
+    if (recipientType !== 'SELLER' && recipientType !== 'DELIVERY') {
+      return badRequest('Invalid recipientType');
     }
-
-    const hasAccess =
-      roles.includes('SELLER') ||
-      roles.includes('DELIVERY');
-
-    if (!hasAccess) {
-      return forbidden(
-        'Requires SELLER or DELIVERY role'
+    if (
+      recipientType !== 'SELLER' &&
+      recipientType !== 'DELIVERY'
+    ) {
+      return badRequest(
+        'Invalid recipientType'
       );
     }
 
-    const recipientType: RecipientType =
-      roles.includes('SELLER')
-        ? 'SELLER'
-        : 'DELIVERY';
+    if (!roles.includes(recipientType)) {
+      return forbidden(
+        `User does not have ${recipientType} role`
+      );
+    }
 
-    const payouts = await getPayoutsByRecipient(
-      userId,
-      recipientType
-    );
+    const payouts =
+      await getPayoutsByRecipient(
+        userId,
+        recipientType
+      );
 
     return ok(payouts);
   } catch (error) {
-    console.error('Error listing payouts:', error);
+    console.error(
+      'Error listing payouts:',
+      error
+    );
     return internalError();
   }
 }
 
 /** POST /api/payments/payouts — Crear un nuevo payout */
-export async function POST(request: Request) {
+export async function POST(
+  request: Request
+) {
   try {
     const body = await request.json();
 
-    const { userId, roles } = await requireAuth();
+    const { userId, roles } =
+      await requireAuth(
+        'seller',
+        'delivery'
+      );
 
-    if (!userId) {
-      return unauthorized('Unauthorized');
-    }
+    const {
+      orderId,
+      recipientType,
+    } = body;
 
-    const hasAccess =
-      roles.includes('SELLER') ||
-      roles.includes('DELIVERY');
-
-    if (!hasAccess) {
-      return forbidden(
-        'Requires SELLER or DELIVERY role'
+    if (!orderId) {
+      return badRequest(
+        'orderId is required'
       );
     }
 
-    const recipientType: RecipientType =
-      roles.includes('SELLER')
-        ? 'SELLER'
-        : 'DELIVERY';
-
-    const { orderId, amount } = body;
-
-    if (!orderId || amount == null) {
-      return badRequest('Missing required fields');
+    if (
+      recipientType !== 'SELLER' &&
+      recipientType !== 'DELIVERY'
+    ) {
+      return badRequest(
+        'Invalid recipientType'
+      );
     }
 
-    const payout = await createPayout({
-      orderId,
-      userId,
-      recipientType,
-      amount,
-    });
+    if (!roles.includes(recipientType)) {
+      return forbidden(
+        `User does not have ${recipientType} role`
+      );
+    }
+
+    const payout =
+      await claimPayout(
+        orderId,
+        recipientType,
+        userId
+      );
+
+    if (!payout) {
+      return badRequest(
+        'Payout not found'
+      );
+    }
+
+    const transactionType =
+      recipientType === 'SELLER'
+        ? TransactionType.PAYOUT_SELLER
+        : TransactionType.PAYOUT_DELIVERY;
+
+    await transactionService
+      .createTransactionIfNotExists({
+        payoutId: payout.id,
+        orderId: payout.orderId,
+        amount: payout.amount,
+        type: transactionType,
+        status: 'APPROVED',
+      });
 
     return created(payout);
   } catch (error) {
-    console.error('Error creating payout:', error);
+    console.error(
+      'Error creating payout:',
+      error
+    );
     return internalError();
   }
 }

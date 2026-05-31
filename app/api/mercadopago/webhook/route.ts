@@ -2,6 +2,7 @@ import { Payment } from 'mercadopago';
 import { mpClient } from '@/lib/mercadopago';
 
 import * as paymentService from '@/modules/payments/payment.service';
+import * as payoutService from '@/modules/payouts/payout.service';
 import * as transactionService from '@/modules/transactions/transaction.service';
 import { TransactionType } from '@/lib/generated/prisma/client';
 
@@ -215,13 +216,64 @@ export async function POST(request: Request) {
                     status,
                 });
 
-            console.info(
-                '[MP WEBHOOK][INFO] Transaction recorded',
-                {
+            if (status === 'APPROVED') {
+
+                const sellerAmount =
+                    updatedPayment.amount.mul(0.90);
+
+                const deliveryAmount =
+                    updatedPayment.amount.mul(0.05);
+
+                const platformAmount =
+                    updatedPayment.amount.mul(0.05);
+
+                await payoutService
+                    .createPayoutIfNotExists({
+                        orderId: updatedPayment.orderId,
+                        recipientType: 'SELLER',
+                        amount: sellerAmount,
+                    });
+
+                await payoutService
+                    .createPayoutIfNotExists({
+                        orderId: updatedPayment.orderId,
+                        recipientType: 'DELIVERY',
+                        amount: deliveryAmount,
+                    });
+
+                await transactionService.createTransactionIfNotExists({
                     paymentId: updatedPayment.id,
-                    status,
-                }
-            );
+                    orderId: updatedPayment.orderId,
+                    amount: platformAmount,
+                    type: TransactionType.COMMISSION,
+                    status: 'APPROVED',
+                });
+
+                await transactionService.createTransactionIfNotExists({
+                    paymentId: updatedPayment.id,
+                    orderId: updatedPayment.orderId,
+                    amount: deliveryAmount,
+
+                    type: TransactionType.PAYOUT_DELIVERY,
+
+                    status: 'PENDING',
+                });
+
+                await transactionService.createTransactionIfNotExists({
+                    paymentId: updatedPayment.id,
+                    orderId: updatedPayment.orderId,
+                    amount: sellerAmount,
+
+                    type: TransactionType.PAYOUT_SELLER,
+
+                    status: 'PENDING',
+                });
+
+
+                await notifyOrderConfirmed(
+                    updatedPayment.orderId
+                );
+            }
         }
 
         /**
@@ -271,5 +323,48 @@ function mapMercadoPagoStatus(
         case 'in_process':
         default:
             return 'PENDING';
+    }
+}
+
+async function notifyOrderConfirmed(orderId: string) {
+    if (process.env.ENABLE_EXTERNAL_INTEGRATIONS !== 'true') {
+        console.info(
+            '[INTEGRATION][SKIPPED] Order confirmation integration disabled',
+            { orderId }
+        );
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `${process.env.SELLER_API_URL}/api/orders/${orderId}`,
+            {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    status: 'CONFIRMED',
+                }),
+            }
+        );
+
+        if (!response.ok) {
+            console.error(
+                '[INTEGRATION][ERROR] Failed to confirm order',
+                {
+                    orderId,
+                    status: response.status,
+                }
+            );
+        }
+    } catch (error) {
+        console.error(
+            '[INTEGRATION][ERROR] Order confirmation request failed',
+            {
+                orderId,
+                error,
+            }
+        );
     }
 }

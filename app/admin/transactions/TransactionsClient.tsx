@@ -1,12 +1,12 @@
-// TransactionsClient.tsx
 'use client';
 
-import { TransactionStatus, TransactionType } from '@/lib/generated/prisma/client';
+import { TransactionStatus, TransactionType, DashboardTransactionFilter } from '@/types/transactions';
 import Filters from './Filters';
 import Pagination from './Pagination';
 import SearchInput from './SearchInput';
 import { StatusBadge } from '@/components/ui/badges/StatusBadge';
 import { TypeBadge } from '@/components/ui/badges/TypeBadge';
+import { formatDate } from '@/lib/dates/formatDate';
 
 type SerializedTransaction = {
   id: string;
@@ -28,7 +28,7 @@ interface TransactionsClientProps {
   };
   filters: {
     status?: TransactionStatus;
-    type?: TransactionType;
+    type?: DashboardTransactionFilter;
     search?: string;
   };
 }
@@ -38,6 +38,7 @@ export default function TransactionsClient({
   pagination,
   filters,
 }: TransactionsClientProps) {
+
   return (
     <div className="flex flex-col gap-lg pb-lg">
 
@@ -123,7 +124,7 @@ export default function TransactionsClient({
                       ${Number(transaction.amount).toFixed(2)}
                     </td>
                     <td className="px-md py-md pr-lg text-[12px] text-on-surface-variant whitespace-nowrap">
-                      {new Date(transaction.createdAt).toLocaleString()}
+                      {formatDate(transaction.createdAt)}
                     </td>
                   </tr>
                 ))

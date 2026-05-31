@@ -51,3 +51,43 @@ export async function updatePayout(
     data,
   });
 }
+
+export async function findPayoutByOrderIdAndRecipientType(
+  orderId: string,
+  recipientType: RecipientType
+): Promise<Payout | null> {
+  return prisma.payout.findFirst({
+    where: {
+      orderId,
+      recipientType,
+    },
+  });
+}
+
+export async function findPendingPayoutByOrderIdAndType(
+  orderId: string,
+  recipientType: RecipientType
+): Promise<Payout | null> {
+  return prisma.payout.findFirst({
+    where: {
+      orderId,
+      recipientType,
+      status: 'PENDING',
+    },
+  });
+}
+
+export async function completePayout(
+  payoutId: string,
+  recipientId: string
+): Promise<Payout> {
+  return prisma.payout.update({
+    where: {
+      id: payoutId,
+    },
+    data: {
+      recipientId,
+      status: 'APPROVED',
+    },
+  });
+}

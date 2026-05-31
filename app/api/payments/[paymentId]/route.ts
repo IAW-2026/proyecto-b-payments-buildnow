@@ -1,15 +1,10 @@
 import { ok, internalError, unauthorized } from '@/lib/http';
 import { getPaymentsByUserId } from '@/modules/payments';
-import { auth } from '@clerk/nextjs/server';
-
+import { requireAuth } from '@/lib/auth';
 
 export async function GET() {
   try {
-    const { userId } = await auth();
-
-    if (!userId) {
-      return unauthorized('Unauthorized');
-    }
+    const { userId } = await requireAuth('buyer');
 
     const payments = await getPaymentsByUserId(userId);
 

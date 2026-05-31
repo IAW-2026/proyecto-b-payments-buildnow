@@ -1,42 +1,27 @@
 'use client';
 
-import {
-  TransactionStatus,
-  TransactionType,
-} from '@/lib/generated/prisma/client';
-
+import { TransactionStatus, DashboardTransactionFilter } from '@/types/transactions';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 interface FiltersProps {
   currentFilters: {
     status?: TransactionStatus;
-    type?: TransactionType;
+    type?: DashboardTransactionFilter;
   };
 }
 
-export default function Filters({
-  currentFilters,
-}: FiltersProps) {
+export default function Filters({ currentFilters }: FiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const handleFilterChange = (
-    key: string,
-    value: string
-  ) => {
-    const params = new URLSearchParams(
-      searchParams.toString()
-    );
-
+  const handleFilterChange = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
     if (value) {
       params.set(key, value);
     } else {
       params.delete(key);
     }
-
-    // Reset pagination on filter change
     params.set('page', '1');
-
     router.push(`?${params.toString()}`);
   };
 
@@ -56,29 +41,14 @@ export default function Filters({
 
   return (
     <div className="flex flex-col gap-md sm:flex-row">
-
-      {/* Status */}
       <div className="space-y-xs">
-        <label
-          htmlFor="status"
-          className="
-            block text-[12px]
-            uppercase tracking-wide
-            text-on-surface-variant
-          "
-        >
+        <label htmlFor="status" className="block text-[12px] uppercase tracking-wide text-on-surface-variant">
           Status
         </label>
-
         <select
           id="status"
           value={currentFilters.status || ''}
-          onChange={(e) =>
-            handleFilterChange(
-              'status',
-              e.target.value
-            )
-          }
+          onChange={(e) => handleFilterChange('status', e.target.value)}
           className={selectStyles}
         >
           <option value="">All Statuses</option>
@@ -88,28 +58,14 @@ export default function Filters({
         </select>
       </div>
 
-      {/* Type */}
       <div className="space-y-xs">
-        <label
-          htmlFor="type"
-          className="
-            block text-[12px]
-            uppercase tracking-wide
-            text-on-surface-variant
-          "
-        >
+        <label htmlFor="type" className="block text-[12px] uppercase tracking-wide text-on-surface-variant">
           Type
         </label>
-
         <select
           id="type"
           value={currentFilters.type || ''}
-          onChange={(e) =>
-            handleFilterChange(
-              'type',
-              e.target.value
-            )
-          }
+          onChange={(e) => handleFilterChange('type', e.target.value)}
           className={selectStyles}
         >
           <option value="">All Types</option>

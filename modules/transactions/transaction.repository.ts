@@ -50,19 +50,35 @@ export async function findTransactionByPaymentIdAndStatus(
   });
 }
 
-export interface PaginatedTransactionsParams {
-  page: number;
-  limit: number;
-  status?: TransactionStatus;
-  type?: TransactionType;
-  search?: string;
+/** Buscar transaction por paymentId, type y status (para idempotencia) */
+export async function findTransactionByPaymentIdTypeAndStatus(
+  paymentId: string,
+  type: TransactionType,
+  status: TransactionStatus
+): Promise<Transaction | null> {
+  return prisma.transaction.findFirst({
+    where: {
+      paymentId,
+      type,
+      status,
+    },
+  });
 }
+
+export type DashboardTransactionFilter =
+  | 'ALL'
+  | 'PAYMENT'
+  | 'PAYOUT'
+  | 'COMMISSION';
 
 export interface PaginatedTransactionsParams {
   page: number;
   limit: number;
+
   status?: TransactionStatus;
-  type?: TransactionType;
+  type?: DashboardTransactionFilter;
+
+  search?: string;
 }
 
 export async function findTransactionsPaginated({
@@ -77,7 +93,30 @@ export async function findTransactionsPaginated({
   const where: Prisma.TransactionWhereInput = {};
 
   if (status) where.status = status;
-  if (type) where.type = type;
+    if (type) {
+      switch (type) {
+        case 'PAYMENT':
+          where.type = TransactionType.PAYMENT;
+          break;
+
+        case 'COMMISSION':
+          where.type = TransactionType.COMMISSION;
+          break;
+
+        case 'PAYOUT':
+          where.type = {
+            in: [
+              TransactionType.PAYOUT_SELLER,
+              TransactionType.PAYOUT_DELIVERY,
+            ],
+          };
+          break;
+
+        case 'ALL':
+          default:
+            break;
+      }
+    }
 
   if (search) {
     where.OR = [

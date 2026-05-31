@@ -38,7 +38,8 @@ enum TransactionStatus {
 
 enum TransactionType {
   PAYMENT
-  PAYOUT
+  PAYOUT_DELIVERY
+  PAYOUT_SELLER
   COMMISSION
 }
 
@@ -76,10 +77,14 @@ model Payment {
 model Payout {
   id            String        @id @default(uuid())
   orderId       String
-  recipientId   String
+
+  recipientId   String?
   recipientType RecipientType
+
   amount        Decimal
+
   status        PayoutStatus  @default(PENDING)
+
   createdAt     DateTime      @default(now())
 
   transactions Transaction[]

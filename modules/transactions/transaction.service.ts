@@ -41,23 +41,31 @@ export async function recordTransaction(
 export async function createTransactionIfNotExists(
   data: RecordTransactionInput
 ): Promise<Transaction> {
-  const status = data.status ?? TransactionStatus.PENDING;
+
+  const status =
+    data.status ?? TransactionStatus.PENDING;
 
   if (data.paymentId) {
-    const existing = await transactionRepository
-      .findTransactionByPaymentIdAndStatus(
-        data.paymentId,
-        status
-      );
+
+    const existing =
+      await transactionRepository
+        .findTransactionByPaymentIdTypeAndStatus(
+          data.paymentId,
+          data.type,
+          status
+        );
 
     if (existing) {
+
       console.info(
         '[TRANSACTION][INFO] Duplicate skipped',
         {
           paymentId: data.paymentId,
+          type: data.type,
           status,
         }
       );
+
       return existing;
     }
   }

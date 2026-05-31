@@ -1,16 +1,29 @@
-import { TransactionType } from '@/lib/generated/prisma/client';
+import { TransactionType } from '@/types/transactions';
 
-export function TypeBadge({ type }: { type: TransactionType }) {
+export function TypeBadge({
+  type,
+}: {
+  type: TransactionType;
+}) {
+
   const styles = {
     PAYMENT:
       'bg-primary/10 text-primary border-primary/20',
 
-    PAYOUT:
+    PAYOUT_SELLER:
+      'bg-secondary/10 text-secondary border-secondary/20',
+
+    PAYOUT_DELIVERY:
       'bg-secondary/10 text-secondary border-secondary/20',
 
     COMMISSION:
       'bg-surface-container-high text-on-surface-variant border-outline-variant',
   };
+
+  const label =
+  type === 'PAYOUT_SELLER' || type === 'PAYOUT_DELIVERY'
+    ? 'PAYOUT'
+    : type;
 
   return (
     <span
@@ -20,7 +33,7 @@ export function TypeBadge({ type }: { type: TransactionType }) {
         ${styles[type]}
       `}
     >
-      {type}
+      {label}
     </span>
   );
 }

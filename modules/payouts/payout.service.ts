@@ -3,9 +3,9 @@ import { Prisma, RecipientType, type Payout, PayoutStatus } from '@/lib/generate
 
 export interface CreatePayoutInput {
   orderId: string;
-  userId: string;
-  recipientType: 'SELLER' | 'DELIVERY';
-  amount: number;
+  recipientId?: string | null;
+  recipientType: RecipientType;
+  amount: Prisma.Decimal;
 }
 
 export async function createPayout(
@@ -14,9 +14,9 @@ export async function createPayout(
   const payout: Payout = {
     id: crypto.randomUUID(),
     orderId: data.orderId,
-    recipientId: data.userId,
+    recipientId: data.recipientId ?? null,
     recipientType: data.recipientType,
-    amount: new Prisma.Decimal(data.amount),
+    amount: data.amount,
     status: 'PENDING',
     createdAt: new Date(),
   };
@@ -51,4 +51,52 @@ export async function updatePayoutStatus(
   return payoutRepository.updatePayout(id, {
     status,
   });
+}
+
+export async function createPayoutIfNotExists(
+  data: CreatePayoutInput
+): Promise<Payout> {
+
+  const existing =
+    await payoutRepository
+      .findPayoutByOrderIdAndRecipientType(
+        data.orderId,
+        data.recipientType
+      );
+
+  if (existing) {
+
+    console.info(
+      '[PAYOUT][INFO] Duplicate skipped',
+      {
+        orderId: data.orderId,
+        recipientType: data.recipientType,
+      }
+    );
+
+    return existing;
+  }
+
+  return createPayout(data);
+}
+
+export async function claimPayout(
+  orderId: string,
+  recipientType: RecipientType,
+  recipientId: string
+) {
+  const payout =
+    await payoutRepository.findPendingPayoutByOrderIdAndType(
+      orderId,
+      recipientType
+    );
+
+  if (!payout) {
+    return null;
+  }
+
+  return payoutRepository.completePayout(
+    payout.id,
+    recipientId
+  );
 }
