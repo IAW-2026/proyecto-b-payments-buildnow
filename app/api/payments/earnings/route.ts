@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   try {
     const { userId, roles } =
       await requireAuth(
-        'buyer',
+        'seller',
         'delivery'
       );
 
@@ -27,7 +27,13 @@ export async function GET(request: Request) {
       );
     }
 
-    if (!roles.includes(recipientType)) {
+    const roleByRecipientType = {
+      SELLER: 'seller',
+      DELIVERY: 'delivery',
+    } as const;
+
+
+    if (!roles.includes(roleByRecipientType[recipientType])) {
       return forbidden(
         `User does not have ${recipientType} role`
       );
