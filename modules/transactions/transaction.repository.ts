@@ -1,4 +1,4 @@
-import { Transaction, TransactionStatus } from '@/lib/generated/prisma/client';
+import { Transaction, TransactionStatus, TransactionType, Prisma } from '@/lib/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 
 export async function saveTransaction(
@@ -48,4 +48,64 @@ export async function findTransactionByPaymentIdAndStatus(
       status,
     },
   });
+}
+
+export interface PaginatedTransactionsParams {
+  page: number;
+  limit: number;
+  status?: TransactionStatus;
+  type?: TransactionType;
+  search?: string;
+}
+
+export interface PaginatedTransactionsParams {
+  page: number;
+  limit: number;
+  status?: TransactionStatus;
+  type?: TransactionType;
+}
+
+export async function findTransactionsPaginated({
+  page,
+  limit,
+  status,
+  type,
+  search,
+}: PaginatedTransactionsParams) {
+  const skip = (page - 1) * limit;
+
+  const where: Prisma.TransactionWhereInput = {};
+
+  if (status) where.status = status;
+  if (type) where.type = type;
+
+  if (search) {
+    where.OR = [
+      {
+        orderId: {
+          contains: search,
+          mode: 'insensitive',
+        },
+      },
+    ];
+  }
+
+  const [transactions, totalItems] = await Promise.all([
+    prisma.transaction.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.transaction.count({ where }),
+  ]);
+
+  return {
+    transactions,
+    pagination: {
+      page,
+      totalPages: Math.ceil(totalItems / limit),
+      totalItems,
+    },
+  };
 }

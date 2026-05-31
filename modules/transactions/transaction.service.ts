@@ -86,3 +86,10 @@ export async function getTransactionById(
 export async function listTransactions(): Promise<Transaction[]> {
   return transactionRepository.findAllTransactions();
 }
+
+
+export async function getTransactionsPaginated(
+  params: transactionRepository.PaginatedTransactionsParams
+) {
+  return transactionRepository.findTransactionsPaginated(params);
+}
