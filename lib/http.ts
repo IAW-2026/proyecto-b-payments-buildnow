@@ -1,5 +1,3 @@
-// Helpers para respuestas HTTP estandarizadas en API routes
-
 import { NextResponse } from 'next/server';
 
 /** Respuesta exitosa (200) */

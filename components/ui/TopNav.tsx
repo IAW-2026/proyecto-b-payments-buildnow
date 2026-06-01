@@ -1,4 +1,3 @@
-// components/top-nav.tsx
 'use client';
 
 import { Banknote, LogOut } from 'lucide-react';
@@ -15,7 +14,6 @@ export function TopNav({ subtitle }: TopNavProps) {
     <header className="border-b border-outline-variant">
       <div className="mx-auto flex w-full items-center justify-between px-6 py-4">
 
-        {/* Brand */}
         <div className="flex items-center gap-4">
           <div className="flex h-10 w-10 items-center justify-center rounded bg-primary-container">
             <Banknote className="text-white" />
@@ -28,7 +26,6 @@ export function TopNav({ subtitle }: TopNavProps) {
           </div>
         </div>
 
-        {/* Logout */}
         <button
           onClick={() => signOut()}
           className="

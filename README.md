@@ -2,7 +2,7 @@
 
 ## Deploy de producción
 
-https://proyecto-b-payments-buildnow-kmhd5xmzn.vercel.app/
+proyecto-b-payments-buildnow.vercel.app
 
 ---
 

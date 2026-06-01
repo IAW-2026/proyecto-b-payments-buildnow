@@ -5,7 +5,6 @@ import type {
 
 import { prisma } from '@/lib/prisma';
 
-/** Guardar un pago */
 export async function savePayment(
   payment: Payment
 ): Promise<Payment> {
@@ -40,7 +39,6 @@ export async function savePayment(
   });
 }
 
-/** Buscar pagos por userId */
 export async function findPaymentByUserId(
   userId: string
 ): Promise<Payment[]> {
@@ -54,7 +52,6 @@ export async function findPaymentByUserId(
   });
 }
 
-/** Buscar pago por orderId */
 export async function findPaymentByOrderIdAndUserId(
   orderId: string,
   userId: string
@@ -68,13 +65,11 @@ export async function findPaymentByOrderIdAndUserId(
   });
 }
 
-/** Obtener todos los pagos */
 export async function findAllPayments(): Promise<Payment[]> {
 
   return prisma.payment.findMany();
 }
 
-/** Actualizar un pago */
 export async function updatePayment(
   id: string,
   data: Prisma.PaymentUpdateInput
@@ -97,7 +92,6 @@ export async function updatePayment(
   }
 }
 
-/** Actualizar pago por orderId */
 export async function updatePaymentByOrderId(
   orderId: string,
   data: Prisma.PaymentUpdateInput
@@ -123,7 +117,6 @@ export async function updatePaymentByOrderId(
   }
 }
 
-/** Buscar pago por orderId */
 export async function findPaymentByOrderId(
   orderId: string
 ): Promise<Payment | null> {

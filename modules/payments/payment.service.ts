@@ -27,7 +27,6 @@ type UpdatePaymentInput = {
   paidAt?: Date | null;
 };
 
-/** Crear un nuevo pago */
 export async function createPayment(
   data: CreatePaymentInput
 ): Promise<Payment> {
@@ -61,7 +60,6 @@ export async function createPayment(
   const savedPayment = await paymentRepository
     .savePayment(payment);
 
-  /** Registrar transaction inicial PENDING */
   await transactionService.createTransactionIfNotExists({
     paymentId: savedPayment.id,
     orderId: savedPayment.orderId,
@@ -73,7 +71,6 @@ export async function createPayment(
   return savedPayment;
 }
 
-/** Obtener pagos por userId */
 export async function getPaymentsByUserId(
   id: string
 ): Promise<Payment[]> {
@@ -82,7 +79,6 @@ export async function getPaymentsByUserId(
     .findPaymentByUserId(id);
 }
 
-/** Obtener un pago por OrderID y userId */
 export async function getPaymentByOrderIdAndUserId(
   orderId: string,
   userId: string
@@ -95,14 +91,12 @@ export async function getPaymentByOrderIdAndUserId(
     );
 }
 
-/** Listar todos los pagos */
 export async function listPayments(): Promise<Payment[]> {
 
   return paymentRepository
     .findAllPayments();
 }
 
-/** Actualizar un pago */
 export async function updatePaymentStatus(
   id: string,
   status: PaymentStatus
@@ -114,7 +108,6 @@ export async function updatePaymentStatus(
   );
 }
 
-/** Actualizar payment por orderId */
 export async function updatePaymentStatusByOrderId(
   orderId: string,
   data: UpdatePaymentInput
@@ -126,7 +119,7 @@ export async function updatePaymentStatusByOrderId(
       data
     );
 }
-/** Obtener payment por orderId */
+
 export async function getPaymentByOrderId(
   orderId: string
 ): Promise<Payment | null> {

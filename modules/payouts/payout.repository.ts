@@ -1,7 +1,6 @@
 import { RecipientType, type Payout } from '@/lib/generated/prisma/client';
 import { prisma } from '@/lib/prisma';
 
-/** Guardar un payout */
 export async function savePayout(payout: Payout): Promise<Payout> {
   return prisma.payout.create({
     data: {
@@ -16,19 +15,16 @@ export async function savePayout(payout: Payout): Promise<Payout> {
   });
 }
 
-/** Buscar un payout por ID */
 export async function findPayoutById(id: string): Promise<Payout | null> {
   return prisma.payout.findUnique({
     where: { id }
   });
 }
 
-/** Obtener todos los payouts */
 export async function findAllPayouts(): Promise<Payout[]> {
   return prisma.payout.findMany();
 }
 
-/** Buscar payouts por recipient */
 export async function findPayoutsByRecipient(
   recipientId: string,
   recipientType: RecipientType
@@ -41,7 +37,6 @@ export async function findPayoutsByRecipient(
   });
 }
 
-/** Actualizar estado de payout */
 export async function updatePayout(
   id: string,
   data: Partial<Payout>

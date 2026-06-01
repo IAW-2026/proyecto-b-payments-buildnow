@@ -277,7 +277,6 @@ export async function POST(request: Request) {
         }
 
         /**
-         * IMPORTANTE:
          * devolver 200 para que MP
          * no reintente el webhook
          */
@@ -304,9 +303,7 @@ export async function POST(request: Request) {
     }
 }
 
-/**
- * Mapper de estados MercadoPago
- */
+
 function mapMercadoPagoStatus(
     status?: string | null
 ) {
