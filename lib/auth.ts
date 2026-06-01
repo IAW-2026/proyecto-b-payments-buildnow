@@ -9,6 +9,10 @@ export type Role =
 export async function requireAuth(...allowedRoles: Role[]) {
   const isAdminRequired = allowedRoles.includes('admin');
 
+  /**
+   * Hasta conectar con las otras api's se usa este id y 
+   * se le asignan todos los roles
+   */
   if (process.env.DEV_AUTH_BYPASS === 'true' && !isAdminRequired) {
     return {
       userId: 'dev-user',
@@ -18,7 +22,7 @@ export async function requireAuth(...allowedRoles: Role[]) {
 
   const { userId, sessionClaims } = await auth();
 
-  
+
 
   if (!userId) {
     throw new Error('UNAUTHORIZED');
