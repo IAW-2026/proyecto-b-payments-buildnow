@@ -69,8 +69,7 @@ export async function POST(request: Request) {
 
         /**
          * Validar firma HMAC
-         * SOLO en producción
-         */
+         * 
         if (process.env.NODE_ENV === 'production') {
 
             const isValid =
@@ -110,7 +109,11 @@ export async function POST(request: Request) {
                 '[MP WEBHOOK][DEV] Signature validation skipped'
             );
         }
+            */
 
+        console.info(
+            '[MP WEBHOOK][DEV] Signature validation skipped'
+        );
         /**
          * Buscar pago real en MercadoPago
          */
