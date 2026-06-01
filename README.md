@@ -2,7 +2,7 @@
 
 ## Deploy de producción
 
-https://proyecto-b-payments-buildnow-259nrouhp.vercel.app/admin/transactions?page=1
+https://proyecto-b-payments-buildnow-kmhd5xmzn.vercel.app/
 
 ---
 
@@ -14,7 +14,7 @@ El unico usuario de prueba de la app es el que tiene rol admin ya que es el unic
 Email:
 
 ```txt
-admin+clerktest@gmail.com
+admin+clerktest@iaw.com
 ```
 
 contraseña:
