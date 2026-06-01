@@ -75,7 +75,7 @@ Abrirlo en el navegador e iniciar sesión con la cuenta **Buyer** de prueba para
 GET https://proyecto-b-payments-buildnow.vercel.app/api/payments?orderId=ORD1
 ```
 
-### 3. Reclamar un payout (seller o delivery)
+### 4. Reclamar un payout (seller o delivery)
 
 ```http
 POST https://proyecto-b-payments-buildnow.vercel.app/api/payments/payouts?recipientType=seller
@@ -91,7 +91,7 @@ Body:
 
 > ⚠️ El `recipientType` va tanto en el query param como en el body.
 
-### 4. Ver earnings
+### 5. Ver earnings
 
 ```http
 GET https://proyecto-b-payments-buildnow.vercel.app/api/payments/earnings?recipientType=DELIVERY
