@@ -1,10 +1,36 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/2ARSwzo1)
-# payments
+# [Proyecto-B-BuildNow-Payments]
 
-Aplicación **Payments** del [Proyecto IAW 2026](https://iaw-2026.github.io/proyecto/) — comisión `<!-- completar -->`.
+## Deploy de producción
 
-Esta app corresponde al módulo de pagos en los proyectos de tipo **A (Transporte)**, **B (Delivery)** y **C (Marketplace)**.
+https://proyecto-b-payments-buildnow-259nrouhp.vercel.app/admin/transactions?page=1
 
 ---
 
-Enunciado completo: <https://iaw-2026.github.io/proyecto/>
+## Usuarios de prueba
+El unico usuario de prueba de la app es el que tiene rol admin ya que es el unico que puede ver las transacciones.
+
+### Admin
+
+Email:
+
+```txt
+admin+clerktest@gmail.com
+```
+
+contraseña:
+```txt
+iawuser#
+```
+
+## Instrucciones de uso / evaluación
+
+* Iniciar sesión utilizando la cuenta de prueba, y ahi se podran ver las transacciones hechas en la app junto con un conjunto de filtros. 
+
+## Descripción del proyecto
+
+Plataforma interna con acceso exclusivo para administradores.
+
+Incluye integración con MercadoPago para la gestión de pagos y un sistema interno de transacciones, earnings y payouts que registra y organiza todos los movimientos financieros de la plataforma.
+
+La visualización y administración completa de transacciones está disponible únicamente para el rol administrador.
+
