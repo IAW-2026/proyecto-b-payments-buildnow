@@ -62,7 +62,14 @@ Body:
 
 > ⚠️ El `orderId` debe ser único, no puede repetirse.
 
-### 2. Ver el estado de una orden
+### 2. Pagar la orden
+
+En la respuesta del paso anterior va a aparecer un `sandboxInitPoint`, por ejemplo:
+https://sandbox.mercadopago.com.ar/checkout/v1/redirect?pref_id=...
+
+Abrirlo en el navegador e iniciar sesión con la cuenta **Buyer** de prueba para completar el pago. Una vez aprobado, la transacción va a aparecer actualizada en el panel admin.
+
+### 3. Ver el estado de una orden
 
 ```http
 GET https://proyecto-b-payments-buildnow.vercel.app/api/payments?orderId=ORD1
