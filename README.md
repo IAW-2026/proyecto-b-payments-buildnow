@@ -14,7 +14,7 @@ El unico usuario de prueba de la app es el que tiene rol admin ya que es el unic
 Email:
 
 ```txt
-admin+clerktest@iaw.com
+admin+clerk_test@iaw.com
 ```
 
 contraseña:
