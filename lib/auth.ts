@@ -1,30 +1,37 @@
-// TODO: Reemplazar con autenticación real (e.g. Clerk, NextAuth)
-// Mock básico de autenticación para desarrollo inicial
+import { auth } from '@clerk/nextjs/server';
 
-export interface AuthUser {
-  id: string;
-  email: string;
-  role: 'admin' | 'user';
-}
+export type Role =
+  | 'admin'
+  | 'seller'
+  | 'delivery'
+  | 'buyer';
 
-/** Mock: siempre retorna un usuario autenticado de prueba */
-export async function getCurrentUser(): Promise<AuthUser> {
-  // TODO: Implementar autenticación real
-  return {
-    id: 'user_mock_001',
-    email: 'test@example.com',
-    role: 'admin',
-  };
-}
+export async function requireAuth(...allowedRoles: Role[]) {
+  const isAdminRequired = allowedRoles.includes('admin');
 
-/** Mock: siempre retorna true */
-export async function isAuthenticated(): Promise<boolean> {
-  // TODO: Implementar verificación real
-  return true;
-}
+  if (process.env.DEV_AUTH_BYPASS === 'true' && !isAdminRequired) {
+    return {
+      userId: 'dev-user',
+      roles: ['seller', 'delivery', 'buyer'] as Role[],
+    };
+  }
 
-/** Mock: verifica si el usuario tiene el rol requerido */
-export async function hasRole(requiredRole: AuthUser['role']): Promise<boolean> {
-  const user = await getCurrentUser();
-  return user.role === requiredRole;
+  const { userId, sessionClaims } = await auth();
+
+  
+
+  if (!userId) {
+    throw new Error('UNAUTHORIZED');
+  }
+
+  const roles = (sessionClaims?.metadata?.role as string[]) || [];
+
+  if (
+    allowedRoles.length > 0 &&
+    !allowedRoles.some(role => roles.includes(role))
+  ) {
+    throw new Error('FORBIDDEN');
+  }
+
+  return { userId, roles };
 }

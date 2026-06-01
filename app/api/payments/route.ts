@@ -1,45 +1,154 @@
-// API Route: /api/payments
-// TODO: Implementar lógica real de pagos
+import {
+  createPayment,
+  getPaymentByOrderIdAndUserId,
+} from '@/modules/payments';
 
-import { ok, created, internalError, badRequest } from '@/lib/http';
+import {
+  ok,
+  created,
+  internalError,
+  badRequest,
+  unauthorized,
+} from '@/lib/http';
 
-/** GET — Obtener pagos por orderId */
-export async function GET(request: Request) {
+import { Prisma } from '@/lib/generated/prisma/client';
+
+import * as mercadopagoService from '@/modules/mercadopago/mercadopago.service';
+
+import { requireAuth } from '@/lib/auth';
+
+/** GET /api/payments?orderId=xx */
+export async function GET(
+  request: Request
+) {
   try {
     const url = new URL(request.url);
-    const orderId = url.searchParams.get('orderId');
+
+    const orderId =
+      url.searchParams.get(
+        'orderId'
+      );
+
+    const { userId } =
+      await requireAuth(
+        'buyer'
+      );
+
+    if (!userId) {
+      return unauthorized(
+        'Unauthorized'
+      );
+    }
 
     if (!orderId) {
-      return badRequest('orderId is required');
+      return badRequest(
+        'orderId is required'
+      );
     }
-    // TODO: Obtener pagos desde el servicio
-    return ok([]);
+
+    const payment =
+      await getPaymentByOrderIdAndUserId(
+        orderId,
+        userId
+      );
+
+    return ok(payment);
   } catch (error) {
-    console.error('Error listing payments:', error);
+    console.error(
+      'Error listing payments:',
+      error
+    );
+
     return internalError();
   }
 }
 
-/** POST /api/payments — Crear un nuevo pago */
-export async function POST(request: Request) {
+/** POST /api/payments */
+export async function POST(
+  request: Request
+) {
   try {
-    const body = await request.json();
+    const { userId } =
+      await requireAuth(
+        'buyer'
+      );
 
-    const { orderId, amount, method } = body;
+    const body =
+      await request.json();
 
-    if (!orderId || !amount || !method) {
-      return badRequest('Missing required fields');
+    const {
+      orderId,
+      items,
+      totalAmount,
+    } = body;
+
+    if (!orderId) {
+      return badRequest(
+        'orderId is required'
+      );
     }
 
-    // TODO: Validar datos y crear pago mediante el servicio
+    if (
+      !items ||
+      !Array.isArray(items) ||
+      items.length === 0
+    ) {
+      return badRequest(
+        'items is required'
+      );
+    }
+
+    if (
+      totalAmount == null
+    ) {
+      return badRequest(
+        'totalAmount is required'
+      );
+    }
+
+    /** 1. Crear Preference MP */
+    const preference =
+      await mercadopagoService.createPreference(
+        {
+          items,
+          externalReference:
+            orderId,
+        }
+      );
+
+    /** 2. Crear Payment local */
+    const payment =
+      await createPayment({
+        userId,
+        orderId,
+        amount:
+          new Prisma.Decimal(
+            totalAmount
+          ),
+        method:
+          'mercadopago',
+        preferenceId:
+          preference.preferenceId,
+        externalReference:
+          orderId,
+      });
+
+    /** 3. Response */
     return created({
-      id: 'mock-id',
-      orderId,
-      status: 'PENDING',
-      createdAt: new Date().toISOString()
+      payment,
+      preferenceId:
+        preference.preferenceId,
+      initPoint:
+        preference.initPoint,
+      sandboxInitPoint:
+        preference.sandboxInitPoint,
     });
   } catch (error) {
-    console.error('Error creating payment:', error);
+    console.error(
+      'Error creating payment:',
+      error
+    );
+
     return internalError();
   }
 }

@@ -38,6 +38,14 @@ export function unauthorized(message = 'Unauthorized') {
   );
 }
 
+/** Prohibido (403) */
+export function forbidden(message = 'Forbidden') {
+  return NextResponse.json(
+    { success: false, error: { message } },
+    { status: 403 }
+  );
+}
+
 /** No encontrado (404) */
 export function notFound(message = 'Not found') {
   return NextResponse.json(

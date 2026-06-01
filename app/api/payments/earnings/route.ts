@@ -1,29 +1,72 @@
-import { ok, internalError, badRequest } from '@/lib/http';
+import {
+  ok,
+  internalError,
+  badRequest,
+  forbidden,
+} from '@/lib/http';
 
-/** GET /api/payments/earnings?recipientId=&recipientType= */
-export async function GET(request: Request) {
+import {
+  getEarningsByRecipient,
+} from '@/modules/earnings';
+
+import {
+  RecipientType,
+} from '@/lib/generated/prisma/client';
+
+import { requireAuth } from '@/lib/auth';
+
+export async function GET(
+  request: Request
+) {
   try {
+    const { userId, roles } =
+      await requireAuth(
+        'seller',
+        'delivery'
+      );
+
     const url = new URL(request.url);
 
-    const recipientId = url.searchParams.get('recipientId');
-    const recipientType = url.searchParams.get('recipientType');
+    const recipientType =
+      url.searchParams
+        .get('recipientType')
+        ?.toLowerCase();
 
-    if (!recipientId || !recipientType) {
-      return badRequest('recipientId and recipientType are required');
+    if (
+      recipientType !== 'seller' &&
+      recipientType !== 'delivery'
+    ) {
+      return badRequest(
+        'Invalid recipientType'
+      );
     }
 
-    console.log('Fetching earnings for:', recipientId, recipientType);
+    if (
+      !roles.includes(
+        recipientType
+      )
+    ) {
+      return forbidden(
+        `User does not have ${recipientType} role`
+      );
+    }
 
-    // TODO: Integrar con earning.service
-    return ok({
-      recipientId,
-      recipientType,
-      totalEarnings: 0,
-      currency: 'ARS'
-    });
+    const prismaRecipientType =
+      recipientType ===
+        'seller'
+        ? RecipientType.SELLER
+        : RecipientType.DELIVERY;
 
+    const earnings =
+      await getEarningsByRecipient(
+        userId,
+        prismaRecipientType
+      );
+
+    return ok(earnings);
   } catch (error) {
-    console.error('Error listing earnings:', error);
+    console.error(error);
+
     return internalError();
   }
 }

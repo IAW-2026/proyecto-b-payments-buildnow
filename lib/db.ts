@@ -68,3 +68,10 @@ export function findBy(
     (item) => (item as any)[key] === value
   );
 }
+
+/** Limpiar todas las colecciones (solo para tests) */
+export function resetStore() {
+  for (const key of Object.keys(store)) {
+    store[key] = [];
+  }
+}

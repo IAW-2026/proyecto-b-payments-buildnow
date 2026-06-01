@@ -1,52 +1,171 @@
-// API Route: /api/payments/payouts
-// TODO: Implementar lógica real de payouts
+import {
+  claimPayout,
+  getPayoutsByRecipient,
+} from '@/modules/payouts';
 
-import { ok, created, internalError, badRequest } from '@/lib/http';
+import {
+  ok,
+  forbidden,
+  created,
+  internalError,
+  badRequest,
+} from '@/lib/http';
+
+import { requireAuth } from '@/lib/auth';
+
+import { RecipientType } from '@/lib/generated/prisma/enums';
+
+import * as transactionService from '@/modules/transactions/transaction.service';
+
+import { TransactionType } from '@/lib/generated/prisma/client';
 
 /** GET — Listar payouts por recipient */
-export async function GET(request: Request) {
+export async function GET(
+  request: Request
+) {
   try {
+    const { userId, roles } =
+      await requireAuth(
+        'seller',
+        'delivery'
+      );
+
     const url = new URL(request.url);
 
-    const recipientId = url.searchParams.get('recipientId');
-    const recipientType = url.searchParams.get('recipientType');
+    const recipientType =
+      url.searchParams
+        .get('recipientType')
+        ?.toLowerCase();
 
-    if (!recipientId || !recipientType) {
-      return badRequest('recipientId and recipientType are required');
+    if (
+      recipientType !== 'seller' &&
+      recipientType !== 'delivery'
+    ) {
+      return badRequest(
+        'Invalid recipientType'
+      );
     }
 
-    console.log('Fetching payouts for:', recipientId, recipientType);
+    if (
+      !roles.includes(
+        recipientType
+      )
+    ) {
+      return forbidden(
+        `User does not have ${recipientType} role`
+      );
+    }
 
-    // TODO: Integrar con payout.service
-    return ok([]);
+    const prismaRecipientType =
+      recipientType ===
+        'seller'
+        ? RecipientType.SELLER
+        : RecipientType.DELIVERY;
 
+    const payouts =
+      await getPayoutsByRecipient(
+        userId,
+        prismaRecipientType
+      );
+
+    return ok(payouts);
   } catch (error) {
-    console.error('Error listing payouts:', error);
+    console.error(
+      'Error listing payouts:',
+      error
+    );
+
     return internalError();
   }
 }
 
-/** POST /api/payments/payouts — Crear un nuevo payout */
-export async function POST(request: Request) {
+/** POST — Crear payout */
+export async function POST(
+  request: Request
+) {
   try {
-    const body = await request.json();
+    const body =
+      await request.json();
 
-    const { orderId, recipientId, recipientType, amount } = body;
+    const { userId, roles } =
+      await requireAuth(
+        'seller',
+        'delivery'
+      );
 
-    if (!orderId || !recipientId || !recipientType || !amount) {
-      return badRequest('Missing required fields');
+    const orderId =
+      body.orderId;
+
+    const recipientType =
+      body.recipientType?.toLowerCase();
+
+    if (!orderId) {
+      return badRequest(
+        'orderId is required'
+      );
     }
 
-    console.log('Creating payout:', body);
+    if (
+      recipientType !== 'seller' &&
+      recipientType !== 'delivery'
+    ) {
+      return badRequest(
+        'Invalid recipientType'
+      );
+    }
 
-    // TODO: Integrar con payout.service
-    return created({
-      id: 'mock-id',
-      status: 'PENDING',
-      createdAt: new Date().toISOString()
-    });
+    if (
+      !roles.includes(
+        recipientType
+      )
+    ) {
+      return forbidden(
+        `User does not have ${recipientType} role`
+      );
+    }
+
+    const prismaRecipientType =
+      recipientType ===
+        'seller'
+        ? RecipientType.SELLER
+        : RecipientType.DELIVERY;
+
+    const payout =
+      await claimPayout(
+        orderId,
+        prismaRecipientType,
+        userId
+      );
+
+    if (!payout) {
+      return badRequest(
+        'Payout not found'
+      );
+    }
+
+    const transactionType =
+      prismaRecipientType ===
+        RecipientType.SELLER
+        ? TransactionType.PAYOUT_SELLER
+        : TransactionType.PAYOUT_DELIVERY;
+
+    await transactionService.createTransactionIfNotExists(
+      {
+        payoutId: payout.id,
+        orderId: payout.orderId,
+        amount: payout.amount,
+        type: transactionType,
+        status: 'APPROVED',
+      }
+    );
+
+    return created(payout);
   } catch (error) {
-    console.error('Error creating payout:', error);
+    console.error(
+      'Error creating payout:',
+      error
+    );
+
     return internalError();
   }
 }
