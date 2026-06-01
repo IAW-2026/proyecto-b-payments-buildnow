@@ -43,7 +43,7 @@ export default function Filters({ currentFilters }: FiltersProps) {
     <div className="flex flex-col gap-md sm:flex-row">
       <div className="space-y-xs">
         <label htmlFor="status" className="block text-[12px] uppercase tracking-wide text-on-surface-variant">
-          Status
+          Estado
         </label>
         <select
           id="status"
@@ -51,16 +51,16 @@ export default function Filters({ currentFilters }: FiltersProps) {
           onChange={(e) => handleFilterChange('status', e.target.value)}
           className={selectStyles}
         >
-          <option value="">All Statuses</option>
-          <option value="PENDING">PENDING</option>
-          <option value="APPROVED">APPROVED</option>
-          <option value="REJECTED">REJECTED</option>
+          <option value="">Todos</option>
+          <option value="PENDING">Pendiente</option>
+          <option value="APPROVED">Aprobado</option>
+          <option value="REJECTED">Rechazado</option>
         </select>
       </div>
 
       <div className="space-y-xs">
         <label htmlFor="type" className="block text-[12px] uppercase tracking-wide text-on-surface-variant">
-          Type
+          Tipo
         </label>
         <select
           id="type"
@@ -68,10 +68,10 @@ export default function Filters({ currentFilters }: FiltersProps) {
           onChange={(e) => handleFilterChange('type', e.target.value)}
           className={selectStyles}
         >
-          <option value="">All Types</option>
-          <option value="PAYMENT">PAYMENT</option>
-          <option value="PAYOUT">PAYOUT</option>
-          <option value="COMMISSION">COMMISSION</option>
+          <option value="">Todos</option>
+          <option value="PAYMENT">Cobros</option>
+          <option value="PAYOUT">Pagos emitidos</option>
+          <option value="COMMISSION">Comisiones</option>
         </select>
       </div>
     </div>

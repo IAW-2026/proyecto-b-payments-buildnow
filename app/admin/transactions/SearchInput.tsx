@@ -54,7 +54,7 @@ export default function SearchInput({
 
       <input
         type="text"
-        placeholder="Search by Order ID"
+        placeholder="Buscar por Order ID"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="w-64 bg-transparent text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none lg:w-96"

@@ -8,6 +8,26 @@ import { StatusBadge } from '@/components/ui/badges/StatusBadge';
 import { TypeBadge } from '@/components/ui/badges/TypeBadge';
 import { formatDate } from '@/lib/dates/formatDate';
 
+const amountStyles = {
+  PAYMENT: 'text-emerald-400',
+
+  COMMISSION: 'text-primary',
+
+  PAYOUT_SELLER: 'text-red-400',
+
+  PAYOUT_DELIVERY: 'text-orange-400',
+};
+
+const amountPrefix = {
+  PAYMENT: '+',
+
+  COMMISSION: '+',
+
+  PAYOUT_SELLER: '-',
+
+  PAYOUT_DELIVERY: '-',
+};
+
 type SerializedTransaction = {
   id: string;
   type: TransactionType;
@@ -47,7 +67,7 @@ export default function TransactionsClient({
         <div className="flex flex-col gap-md xl:flex-row xl:items-end">
           <div className="flex-1 min-w-[280px]">
             <label className="mb-xs block text-[12px] uppercase text-on-surface-variant">
-              Search
+              Buscar
             </label>
             <SearchInput initialSearch={filters.search} />
           </div>
@@ -75,19 +95,19 @@ export default function TransactionsClient({
                   Transaction ID
                 </th>
                 <th className="px-md py-sm text-[12px] uppercase tracking-widest text-on-surface-variant">
-                  Type
+                  Tipo
                 </th>
                 <th className="px-md py-sm text-[12px] uppercase tracking-widest text-on-surface-variant">
                   Order ID
                 </th>
                 <th className="px-md py-sm text-[12px] uppercase tracking-widest text-on-surface-variant">
-                  Status
+                  Estado
                 </th>
-                <th className="px-md py-sm text-right text-[12px] uppercase tracking-widest text-on-surface-variant">
-                  Amount
+                <th className="px-md py-sm pr-xl text-right text-[12px] uppercase tracking-widest text-on-surface-variant">
+                  Monto
                 </th>
                 <th className="px-md py-sm text-[12px] uppercase tracking-widest text-on-surface-variant">
-                  Created At
+                  Fecha
                 </th>
               </tr>
             </thead>
@@ -99,7 +119,7 @@ export default function TransactionsClient({
                     colSpan={6}
                     className="px-md py-lg text-center text-on-surface-variant"
                   >
-                    No transactions found.
+                    No se encontraron transacciones.
                   </td>
                 </tr>
               ) : (
@@ -120,11 +140,11 @@ export default function TransactionsClient({
                     <td className="px-md py-md">
                       <StatusBadge status={transaction.status} />
                     </td>
-                    <td className="px-md py-md text-right text-[16px] font-semibold text-primary whitespace-nowrap">
+                    <td className="px-md py-md pr-xl text-right text-[16px] font-semibold text-primary whitespace-nowrap">
                       ${Number(transaction.amount).toFixed(2)}
                     </td>
-                    <td className="px-md py-md pr-lg text-[12px] text-on-surface-variant whitespace-nowrap">
-                      {formatDate(transaction.createdAt)}
+                    <td className={`px-md py-md pr-xl text-righttext-[16px] font-semibold whitespace-nowrap ${amountStyles[transaction.type]}`}>
+                      {amountPrefix[transaction.type]}${Number(transaction.amount).toFixed(2)}
                     </td>
                   </tr>
                 ))
@@ -136,15 +156,15 @@ export default function TransactionsClient({
         {/* Footer */}
         <div className="flex flex-col gap-md border-t border-outline-variant bg-surface-container-low px-md py-md sm:flex-row sm:items-center sm:justify-between">
           <p className="text-[14px] text-on-surface-variant">
-            Showing{' '}
+            Mostrando{' '}
             <span className="font-bold text-on-surface">
               {transactions.length}
             </span>{' '}
-            of{' '}
+            de{' '}
             <span className="font-bold text-on-surface">
               {pagination.totalItems}
             </span>{' '}
-            transactions
+            transacciones
           </p>
           <Pagination
             page={pagination.page}

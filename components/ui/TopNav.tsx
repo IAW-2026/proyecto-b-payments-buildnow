@@ -1,6 +1,15 @@
+'use client';
+
 import { Banknote, LogOut } from 'lucide-react';
+import { useClerk } from '@clerk/nextjs'
 
 export function TopNav() {
+  const { signOut } = useClerk();
+
+  const handleLogout = async () => {
+    await signOut();
+  };
+
   return (
     <header className="border-b border-outline-variant">
       <div className=" mx-auto flex w-full items-center justify-between px-6 py-4">
@@ -17,7 +26,7 @@ export function TopNav() {
             </h1>
 
             <p className="text-sm text-on-surface-variant">
-              Financial Control
+              Control financiero
             </p>
           </div>
         </div>
@@ -25,14 +34,15 @@ export function TopNav() {
         {/* Right section */}
         <div className="flex items-center gap-4">
           <button
+            onClick={handleLogout}
             className="
               flex items-center gap-2 rounded-lg border border-outline-variant
               bg-surface-container-high px-4 py-2 text-sm text-on-surface
-              transition-colors hover:bg-surface-container-highest
+              transition-colors hover:bg-surface-container-highest cursor-pointer
             "
           >
             <LogOut className="h-4 w-4" />
-            Logout
+            Cerrar sesión
           </button>
         </div>
       </div>

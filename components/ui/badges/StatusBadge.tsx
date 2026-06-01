@@ -16,6 +16,12 @@ export function StatusBadge({
       'bg-red-900/30 text-red-400 border-red-800/50',
   };
 
+  const labels = {
+    APPROVED: 'APROBADO',
+    PENDING: 'PENDIENTE',
+    REJECTED: 'RECHAZADO',
+  };
+
   return (
     <span
       className={`
@@ -24,7 +30,7 @@ export function StatusBadge({
         ${styles[status]}
       `}
     >
-      {status}
+      {labels[status]}
     </span>
   );
 }

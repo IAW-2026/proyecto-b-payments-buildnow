@@ -5,25 +5,29 @@ export function TypeBadge({
 }: {
   type: TransactionType;
 }) {
-
   const styles = {
     PAYMENT:
-      'bg-primary/10 text-primary border-primary/20',
+      'bg-emerald-900/15 text-emerald-300 border-emerald-800/30',
 
     PAYOUT_SELLER:
-      'bg-secondary/10 text-secondary border-secondary/20',
+      'bg-violet-900/15 text-violet-300 border-violet-800/30',
 
     PAYOUT_DELIVERY:
-      'bg-secondary/10 text-secondary border-secondary/20',
+      'bg-cyan-900/15 text-cyan-300 border-cyan-800/30',
 
     COMMISSION:
       'bg-surface-container-high text-on-surface-variant border-outline-variant',
   };
 
-  const label =
-  type === 'PAYOUT_SELLER' || type === 'PAYOUT_DELIVERY'
-    ? 'PAYOUT'
-    : type;
+  const labels = {
+    PAYMENT: 'Ingreso',
+
+    PAYOUT_SELLER: 'Pago vendedor',
+
+    PAYOUT_DELIVERY: 'Pago repartidor',
+
+    COMMISSION: 'Comisión',
+  };
 
   return (
     <span
@@ -33,7 +37,7 @@ export function TypeBadge({
         ${styles[type]}
       `}
     >
-      {label}
+      {labels[type]}
     </span>
   );
 }
