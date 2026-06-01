@@ -1,92 +1,154 @@
-import { createPayment, getPaymentByOrderIdAndUserId } from '@/modules/payments';
-import { ok, created, internalError, badRequest, unauthorized, forbidden } from '@/lib/http';
+import {
+  createPayment,
+  getPaymentByOrderIdAndUserId,
+} from '@/modules/payments';
+
+import {
+  ok,
+  created,
+  internalError,
+  badRequest,
+  unauthorized,
+} from '@/lib/http';
+
 import { Prisma } from '@/lib/generated/prisma/client';
+
 import * as mercadopagoService from '@/modules/mercadopago/mercadopago.service';
+
 import { requireAuth } from '@/lib/auth';
 
-
-/** GET /API/payments?orderId=xx */
-export async function GET(request: Request) {
+/** GET /api/payments?orderId=xx */
+export async function GET(
+  request: Request
+) {
   try {
     const url = new URL(request.url);
-    const orderId = url.searchParams.get('orderId');
 
-    const { userId } = await requireAuth('buyer');
+    const orderId =
+      url.searchParams.get(
+        'orderId'
+      );
+
+    const { userId } =
+      await requireAuth(
+        'buyer'
+      );
 
     if (!userId) {
-      return unauthorized('Unauthorized');
+      return unauthorized(
+        'Unauthorized'
+      );
     }
 
     if (!orderId) {
-      return badRequest('orderId is required');
+      return badRequest(
+        'orderId is required'
+      );
     }
 
     const payment =
-      await getPaymentByOrderIdAndUserId(orderId, userId);
+      await getPaymentByOrderIdAndUserId(
+        orderId,
+        userId
+      );
 
     return ok(payment);
   } catch (error) {
-    console.error('Error listing payments:', error);
+    console.error(
+      'Error listing payments:',
+      error
+    );
+
     return internalError();
   }
 }
 
 /** POST /api/payments */
-export async function POST(request: Request) {
+export async function POST(
+  request: Request
+) {
   try {
+    const { userId } =
+      await requireAuth(
+        'buyer'
+      );
 
-    const { userId } = await requireAuth('buyer');
+    const body =
+      await request.json();
 
-    const body = await request.json();
-
-    const { orderId, items, totalAmount } = body;
+    const {
+      orderId,
+      items,
+      totalAmount,
+    } = body;
 
     if (!orderId) {
-      return badRequest('orderId is required');
+      return badRequest(
+        'orderId is required'
+      );
     }
 
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      return badRequest('items is required');
+    if (
+      !items ||
+      !Array.isArray(items) ||
+      items.length === 0
+    ) {
+      return badRequest(
+        'items is required'
+      );
     }
 
-    if (totalAmount == null) {
-      return badRequest('totalAmount is required');
+    if (
+      totalAmount == null
+    ) {
+      return badRequest(
+        'totalAmount is required'
+      );
     }
-
-    const mpItems = items.map((item: any) => ({
-      title: item.title,
-      quantity: item.quantity,
-      unit_price: Number(item.unit_price),
-      currency_id: 'ARS'
-    }));
 
     /** 1. Crear Preference MP */
     const preference =
-      await mercadopagoService.createPreference({
-        items,
-        externalReference: orderId,
-      });
+      await mercadopagoService.createPreference(
+        {
+          items,
+          externalReference:
+            orderId,
+        }
+      );
 
     /** 2. Crear Payment local */
-    const payment = await createPayment({
-      userId,
-      orderId,
-      amount: new Prisma.Decimal(totalAmount),
-      method: 'mercadopago',
-      preferenceId: preference.preferenceId,
-      externalReference: orderId,
-    });
+    const payment =
+      await createPayment({
+        userId,
+        orderId,
+        amount:
+          new Prisma.Decimal(
+            totalAmount
+          ),
+        method:
+          'mercadopago',
+        preferenceId:
+          preference.preferenceId,
+        externalReference:
+          orderId,
+      });
 
     /** 3. Response */
     return created({
       payment,
-      preferenceId: preference.preferenceId,
-      initPoint: preference.initPoint,
-      sandboxInitPoint: preference.sandboxInitPoint,
+      preferenceId:
+        preference.preferenceId,
+      initPoint:
+        preference.initPoint,
+      sandboxInitPoint:
+        preference.sandboxInitPoint,
     });
-
   } catch (error) {
-    console.error('Error creating payment:', error);
+    console.error(
+      'Error creating payment:',
+      error
+    );
+
     return internalError();
   }
 }

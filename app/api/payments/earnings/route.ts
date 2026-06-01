@@ -1,9 +1,23 @@
-import { ok, internalError, badRequest, forbidden } from '@/lib/http';
-import { getEarningsByRecipient } from '@/modules/earnings';
-import { RecipientType } from '@/lib/generated/prisma/client';
+import {
+  ok,
+  internalError,
+  badRequest,
+  forbidden,
+} from '@/lib/http';
+
+import {
+  getEarningsByRecipient,
+} from '@/modules/earnings';
+
+import {
+  RecipientType,
+} from '@/lib/generated/prisma/client';
+
 import { requireAuth } from '@/lib/auth';
 
-export async function GET(request: Request) {
+export async function GET(
+  request: Request
+) {
   try {
     const { userId, roles } =
       await requireAuth(
@@ -14,40 +28,45 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
 
     const recipientType =
-      url.searchParams.get(
-        'recipientType'
-      ) as RecipientType | null;
+      url.searchParams
+        .get('recipientType')
+        ?.toLowerCase();
 
     if (
-      recipientType !== 'SELLER' &&
-      recipientType !== 'DELIVERY'
+      recipientType !== 'seller' &&
+      recipientType !== 'delivery'
     ) {
       return badRequest(
         'Invalid recipientType'
       );
     }
 
-    const roleByRecipientType = {
-      SELLER: 'seller',
-      DELIVERY: 'delivery',
-    } as const;
-
-
-    if (!roles.includes(roleByRecipientType[recipientType])) {
+    if (
+      !roles.includes(
+        recipientType
+      )
+    ) {
       return forbidden(
         `User does not have ${recipientType} role`
       );
     }
 
+    const prismaRecipientType =
+      recipientType ===
+        'seller'
+        ? RecipientType.SELLER
+        : RecipientType.DELIVERY;
+
     const earnings =
       await getEarningsByRecipient(
         userId,
-        recipientType
+        prismaRecipientType
       );
 
     return ok(earnings);
   } catch (error) {
     console.error(error);
+
     return internalError();
   }
 }

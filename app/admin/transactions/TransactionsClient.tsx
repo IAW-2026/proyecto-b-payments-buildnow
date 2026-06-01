@@ -140,11 +140,11 @@ export default function TransactionsClient({
                     <td className="px-md py-md">
                       <StatusBadge status={transaction.status} />
                     </td>
-                    <td className="px-md py-md pr-xl text-right text-[16px] font-semibold text-primary whitespace-nowrap">
-                      ${Number(transaction.amount).toFixed(2)}
-                    </td>
-                    <td className={`px-md py-md pr-xl text-righttext-[16px] font-semibold whitespace-nowrap ${amountStyles[transaction.type]}`}>
+                    <td className={`px-md py-md pr-xl text-right text-[16px] font-semibold whitespace-nowrap ${amountStyles[transaction.type]}`}>
                       {amountPrefix[transaction.type]}${Number(transaction.amount).toFixed(2)}
+                    </td>
+                    <td className="px-md py-md pr-lg text-[12px] text-on-surface-variant whitespace-nowrap">
+                      {formatDate(transaction.createdAt)}
                     </td>
                   </tr>
                 ))
