@@ -6,11 +6,19 @@ const isPublicRoute = createRouteMatcher([
   '/success(.*)',
   '/pending(.*)',
   '/failure(.*)',
+  '/unauthorized'
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (!isPublicRoute(req)) {
     await auth.protect();
+
+    const { sessionClaims } = await auth();
+    const isAdmin = sessionClaims?.metadata?.role?.includes('admin');
+
+    if (!isAdmin) {
+      return Response.redirect(new URL('/unauthorized', req.url));
+    }
   }
 });
 
