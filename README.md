@@ -34,3 +34,6 @@ Incluye integración con MercadoPago para la gestión de pagos y un sistema inte
 
 La visualización y administración completa de transacciones está disponible únicamente para el rol administrador.
 
+## Notas 
+La validación de firma está temporalmente comentada en `/api/mercadopago/webhook` para facilitar las pruebas con cuentas de prueba de MercadoPago, ya que estas no envían el header `x-signature`.
+
