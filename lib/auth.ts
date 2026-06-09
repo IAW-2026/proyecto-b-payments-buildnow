@@ -6,23 +6,11 @@ export type Role =
   | 'delivery'
   | 'buyer';
 
-export async function requireAuth(...allowedRoles: Role[]) {
-  const isAdminRequired = allowedRoles.includes('admin');
-
-  /**
-   * Hasta conectar con las otras api's se usa este id y 
-   * se le asignan todos los roles
-   */
-  if (process.env.DEV_AUTH_BYPASS === 'true' && !isAdminRequired) {
-    return {
-      userId: 'dev-user',
-      roles: ['seller', 'delivery', 'buyer'] as Role[],
-    };
-  }
-
-  const { userId, sessionClaims } = await auth();
-
-
+export async function requireAuth(
+  ...allowedRoles: Role[]
+) {
+  const { userId, sessionClaims } =
+    await auth();
 
   if (!userId) {
     throw new Error('UNAUTHORIZED');
@@ -32,10 +20,15 @@ export async function requireAuth(...allowedRoles: Role[]) {
 
   if (
     allowedRoles.length > 0 &&
-    !allowedRoles.some(role => roles.includes(role))
+    !allowedRoles.some(role =>
+      roles.includes(role)
+    )
   ) {
     throw new Error('FORBIDDEN');
   }
 
-  return { userId, roles };
+  return {
+    userId,
+    roles,
+  };
 }
