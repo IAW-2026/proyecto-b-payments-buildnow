@@ -125,8 +125,7 @@ export async function POST(
           new Prisma.Decimal(
             totalAmount
           ),
-        method:
-          'mercadopago',
+        method: null,
         preferenceId:
           preference.preferenceId,
         externalReference:
@@ -136,12 +135,8 @@ export async function POST(
     /** 3. Response */
     return created({
       payment,
-      preferenceId:
-        preference.preferenceId,
       initPoint:
-        preference.initPoint,
-      sandboxInitPoint:
-        preference.sandboxInitPoint,
+        preference.initPoint
     });
   } catch (error) {
     console.error(

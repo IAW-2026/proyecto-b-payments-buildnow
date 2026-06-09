@@ -178,6 +178,9 @@ export async function POST(request: Request) {
                     {
                         status,
 
+                        method:
+                            paymentInfo.payment_method_id ?? null,
+
                         mercadopagoId,
 
                         statusDetail:
@@ -273,8 +276,18 @@ export async function POST(request: Request) {
                 });
 
 
-                await notifyOrderConfirmed(
-                    updatedPayment.orderId
+                await notifyOrderStatus(
+                    updatedPayment.orderId,
+                    'CONFIRMED'
+                );
+            }
+
+
+            if (status === 'REJECTED') {
+
+                await notifyOrderStatus(
+                    updatedPayment.orderId,
+                    'CANCELLED'
                 );
             }
         }
@@ -326,7 +339,7 @@ function mapMercadoPagoStatus(
     }
 }
 
-async function notifyOrderConfirmed(orderId: string) {
+async function notifyOrderStatus(orderId: string, status: string) {
     if (process.env.ENABLE_EXTERNAL_INTEGRATIONS !== 'true') {
         console.info(
             '[INTEGRATION][SKIPPED] Order confirmation integration disabled',
@@ -342,9 +355,12 @@ async function notifyOrderConfirmed(orderId: string) {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
+
+                    'x-internal-api-key':
+                        process.env.INTERNAL_API_KEY!,
                 },
                 body: JSON.stringify({
-                    status: 'CONFIRMED',
+                    status: status,
                 }),
             }
         );

@@ -79,8 +79,8 @@ export async function GET(
   }
 }
 
-/** POST — Crear payout */
-export async function POST(
+/** POST — Reclamar payout */
+export async function PATCH(
   request: Request
 ) {
   try {
