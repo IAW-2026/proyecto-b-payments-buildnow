@@ -51,7 +51,7 @@ model Payment {
 
   amount             Decimal
 
-  method             String
+  method             String?
 
   status             PaymentStatus @default(PENDING)
 

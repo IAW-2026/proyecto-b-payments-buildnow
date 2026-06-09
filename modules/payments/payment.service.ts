@@ -19,6 +19,7 @@ type CreatePaymentInput = Pick<
 
 type UpdatePaymentInput = {
   status?: PaymentStatus;
+  method?: string | null;
   mercadopagoId?: string | null;
   preferenceId?: string | null;
   externalReference?: string | null;
