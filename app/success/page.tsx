@@ -23,6 +23,7 @@ export default async function SuccessPage({
                 title="Pago no encontrado"
                 description="Missing external reference."
                 details={{}}
+                backHref={`https://proyecto-b-buyer-buildnow.vercel.app/orders/${externalReference}/tracking`}
             />
         );
     }
@@ -40,6 +41,7 @@ export default async function SuccessPage({
                 title="Pago no encontrado"
                 description="No existe el payment en la base de datos."
                 details={{}}
+                backHref={`https://proyecto-b-buyer-buildnow.vercel.app/orders/${externalReference}/tracking`}
             />
         );
     }
@@ -60,6 +62,7 @@ export default async function SuccessPage({
                 Amount:
                     `$${payment.amount.toString()}`,
             }}
+            backHref={`https://proyecto-b-buyer-buildnow.vercel.app/orders/${externalReference}/tracking`}
         />
     );
 }

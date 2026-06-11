@@ -9,10 +9,8 @@ interface PaymentStatusCardProps {
     title: string;
     description: string;
     type: 'success' | 'pending' | 'failure';
-    details: Record<
-        string,
-        string | null | undefined
-    >;
+    details: Record<string, string | null | undefined>;
+    backHref?: string;
 }
 
 export function PaymentStatusCard({
@@ -20,6 +18,7 @@ export function PaymentStatusCard({
     description,
     type,
     details,
+    backHref = '/',
 }: PaymentStatusCardProps) {
 
     const icon =
@@ -162,7 +161,7 @@ export function PaymentStatusCard({
                 </div>
 
                 <Link
-                    href="/"
+                    href={backHref}
                     className="
                         mt-8 inline-flex
                         rounded-xl
@@ -173,7 +172,7 @@ export function PaymentStatusCard({
                         hover:opacity-90
                     "
                 >
-                    ← Volver al inicio
+                    Ver seguimiento del pedido →
                 </Link>
 
             </div>
