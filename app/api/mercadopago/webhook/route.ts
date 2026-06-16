@@ -1,6 +1,6 @@
 import { Payment } from 'mercadopago';
 import { mpClient } from '@/lib/mercadopago';
-
+import { Prisma } from '@/lib/generated/prisma/client';
 import * as paymentService from '@/modules/payments/payment.service';
 import * as payoutService from '@/modules/payouts/payout.service';
 import * as transactionService from '@/modules/transactions/transaction.service';
@@ -225,13 +225,14 @@ export async function POST(request: Request) {
             if (status === 'APPROVED') {
 
                 const sellerAmount =
-                    updatedPayment.amount.mul(0.90);
+                    updatedPayment.amount;
 
-                const deliveryAmount =
-                    updatedPayment.amount.mul(0.05);
+                const deliveryAmount = await getDeliveryAmount(
+                    updatedPayment.orderId
+                );
 
-                const platformAmount =
-                    updatedPayment.amount.mul(0.05);
+
+                const platformAmount = Prisma.Decimal(1000);
 
                 await payoutService
                     .createPayoutIfNotExists({
@@ -383,4 +384,32 @@ async function notifyOrderStatus(orderId: string, status: string) {
             }
         );
     }
+}
+
+async function getDeliveryAmount(
+    orderId: string
+) {
+    const response = await fetch(
+        `${process.env.DELIVERY_API_URL}/api/delivery/quote?orderId=${orderId}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-internal-api-key':
+                    process.env.INTERNAL_API_KEY!,
+            },
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            `Failed to get delivery quote for order ${orderId}`
+        );
+    }
+
+    const data = await response.json();
+
+    return new Prisma.Decimal(
+        data.amount
+    );
 }
